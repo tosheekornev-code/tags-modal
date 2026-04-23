@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { FluentIconByEmoji } from './FluentIcon';
 import { PickerPopover } from './PickerPopover';
 import type { Comment, Tag, TagsModalProps } from './types';
@@ -108,6 +109,9 @@ function TagRow({ tag, onToggle, onRename, onDelete, onIconClick, onCommit, isNe
             <FluentIconByEmoji emoji={tag.icon} size={24} className="rp-emoji" />
           ) : (
             <span className="rp-icon-placeholder">?</span>
+          )}
+          {tag.custom && tag.icon && (
+            <ChevronDown className="rp-icon-chevron" size={12} strokeWidth={2.25} aria-hidden />
           )}
         </button>
         <input

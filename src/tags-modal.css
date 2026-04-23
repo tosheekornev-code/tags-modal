@@ -155,10 +155,28 @@ body {
   padding: 0;
   border-radius: 6px;
   flex-shrink: 0;
+  position: relative;
 }
-.rp-icon-btn.editable { cursor: pointer; }
-.rp-icon-btn.editable:hover { background: var(--rp-pink-soft); }
-.rp-icon-btn.empty { border: 1.5px dashed #c7cbd2; }
+.rp-icon-btn.editable {
+  cursor: pointer;
+  width: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 3px 0 1px;
+}
+.rp-icon-btn.editable:hover { background: #DCDCDC; }
+.rp-icon-btn.empty {
+  border: 1.5px dashed #c7cbd2;
+  width: 26px;
+  padding: 0;
+  justify-content: center;
+}
+.rp-icon-chevron {
+  color: #9ba0aa;
+  flex-shrink: 0;
+}
+.rp-icon-btn.editable:hover .rp-icon-chevron { color: #4b4f58; }
 
 .rp-icon-placeholder {
   font-size: 13px;
@@ -260,10 +278,23 @@ body {
   flex-shrink: 0;
 }
 
+.pop-search-wrap {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.pop-search-icon {
+  position: absolute;
+  left: 10px;
+  color: #9ba0aa;
+  pointer-events: none;
+}
 .pop-search {
   flex: 1;
   min-width: 0;
-  padding: 8px 12px;
+  padding: 8px 12px 8px 32px;
   border: 1px solid #e0e2e8;
   border-radius: 8px;
   font: inherit;
@@ -271,6 +302,7 @@ body {
   outline: 0;
 }
 .pop-search:focus { border-color: var(--rp-pink); }
+.pop-search-wrap:focus-within .pop-search-icon { color: var(--rp-pink); }
 
 .pop-close {
   flex-shrink: 0;
@@ -305,16 +337,15 @@ body {
   display: grid;
   place-items: center;
   color: #8a8f98;
-  transition: color 0.12s, background 0.12s, box-shadow 0.12s;
+  transition: color 0.12s, background 0.12s;
   padding: 0;
 }
-.pop-nav-btn:hover { color: #3b3f48; background: #f2f3f6; }
+.pop-nav-btn:hover { color: #3b3f48; background: #DCDCDC; }
 .pop-nav-btn.active {
   color: var(--rp-pink);
-  box-shadow: inset 0 -2px 0 var(--rp-pink);
-  border-radius: 6px 6px 0 0;
+  background: var(--rp-pink-soft);
 }
-.pop-nav-btn.active:hover { background: transparent; }
+.pop-nav-btn.active:hover { background: var(--rp-pink-soft); }
 
 /* ── Scrollable list with sticky section headers ── */
 .pop-list {
@@ -356,7 +387,7 @@ body {
   place-items: center;
   transition: background 0.1s, transform 0.1s;
 }
-.pop-cell:hover { background: var(--rp-pink-soft); transform: scale(1.1); }
+.pop-cell:hover { background: #DCDCDC; transform: scale(1.1); }
 
 .pop-empty {
   padding: 48px 24px;

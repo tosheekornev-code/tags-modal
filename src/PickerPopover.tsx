@@ -6,6 +6,7 @@ import {
   Leaf,
   Package,
   PartyPopper,
+  Search,
   Smile,
   Users,
   Wine,
@@ -112,13 +113,16 @@ export function PickerPopover({ onPick, onClose, anchor }: PickerProps) {
   return (
     <div className="picker-pop" ref={popRef} style={style}>
       <div className="pop-head">
-        <input
-          autoFocus
-          className="pop-search"
-          placeholder="Поиск иконки…"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-        />
+        <div className="pop-search-wrap">
+          <Search className="pop-search-icon" size={16} strokeWidth={1.75} aria-hidden />
+          <input
+            autoFocus
+            className="pop-search"
+            placeholder="Поиск иконки…"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
+        </div>
         <button
           type="button"
           className="pop-close"
