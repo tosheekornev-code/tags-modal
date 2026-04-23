@@ -5,8 +5,8 @@
   --rp-text: #1a1d24;
   --rp-muted: #8a8f98;
   --rp-line: #e6e7ec;
-  --rp-pink: #D63384;
-  --rp-pink-soft: #fce4ef;
+  --rp-pink: #c02956;
+  --rp-pink-soft: #f6dde3;
   --rp-green: #2DB856;
   --rp-red: #e0576a;
   --rp-radius: 12px;
@@ -340,12 +340,12 @@ body {
   transition: color 0.12s, background 0.12s;
   padding: 0;
 }
-.pop-nav-btn:hover { color: #3b3f48; background: #DCDCDC; }
+.pop-nav-btn:hover { color: #3b3f48; background: #f2f3f6; }
 .pop-nav-btn.active {
   color: var(--rp-pink);
-  background: var(--rp-pink-soft);
+  background: transparent;
 }
-.pop-nav-btn.active:hover { background: var(--rp-pink-soft); }
+.pop-nav-btn.active:hover { color: var(--rp-pink); background: #f2f3f6; }
 
 /* ── Scrollable list with sticky section headers ── */
 .pop-list {

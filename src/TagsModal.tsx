@@ -31,8 +31,8 @@ function TrashIcon() {
 function HelpIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 20 20">
-      <circle cx="10" cy="10" r="9" fill="none" stroke="#D63384" strokeWidth="1.4" />
-      <text x="10" y="14" textAnchor="middle" fontSize="11" fontWeight="600" fill="#D63384">?</text>
+      <circle cx="10" cy="10" r="9" fill="none" stroke="#c02956" strokeWidth="1.4" />
+      <text x="10" y="14" textAnchor="middle" fontSize="11" fontWeight="600" fill="#c02956">?</text>
     </svg>
   );
 }
