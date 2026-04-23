@@ -1,7 +1,8 @@
 export interface IconEntry {
-  e: string;  // unicode emoji (fallback glyph)
-  d: string;  // directory name in fluentui-emoji repo (Title Case)
-  s: string;  // file slug (snake_case)
+  e: string;  // unicode emoji (last-resort fallback glyph)
+  d: string;  // directory name in fluentui-emoji repo (Title Case, for CDN fallback)
+  p: string;  // full path suffix under assets/<d>/ on CDN (e.g., "Flat/wine_glass_flat")
+  s: string;  // clean slug for local path: /icons/<c>/<s>.svg
   c: string;  // category id
   t: string;  // space-separated search tags (Russian + English)
 }
