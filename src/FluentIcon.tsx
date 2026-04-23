@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { IconEntry } from './types';
-import { iconByEmoji, iconCdnUrl, iconLocalUrl } from './icons-catalog';
+import { iconByEmoji, iconLocalUrl } from './icons-catalog';
 
 interface FluentIconProps {
   icon: IconEntry;
@@ -9,13 +9,12 @@ interface FluentIconProps {
   title?: string;
 }
 
-// Renders a Microsoft Fluent Emoji Flat SVG. Tries the locally-hosted copy
-// first (/icons/<c>/<s>.svg); on failure, falls back to jsDelivr CDN; on
-// failure again, shows the unicode glyph as a last resort.
+// Renders a Microsoft Fluent Emoji Flat SVG from /icons/<c>/<s>.svg.
+// If the SVG can't load, falls back to the unicode glyph.
 export function FluentIcon({ icon, size = 24, className = '', title }: FluentIconProps) {
-  const [step, setStep] = useState<0 | 1 | 2>(0);
+  const [err, setErr] = useState(false);
 
-  if (step === 2) {
+  if (err) {
     return (
       <span
         className={`${className} fi-fallback`}
@@ -27,11 +26,9 @@ export function FluentIcon({ icon, size = 24, className = '', title }: FluentIco
     );
   }
 
-  const url = step === 0 ? iconLocalUrl(icon) : iconCdnUrl(icon);
-
   return (
     <img
-      src={url}
+      src={iconLocalUrl(icon)}
       alt={icon.e}
       title={title ?? icon.s}
       width={size}
@@ -39,7 +36,7 @@ export function FluentIcon({ icon, size = 24, className = '', title }: FluentIco
       loading="lazy"
       draggable={false}
       className={`${className} fi-svg`}
-      onError={() => setStep((s) => (s === 0 ? 1 : 2))}
+      onError={() => setErr(true)}
       style={{ display: 'block', width: size, height: size, userSelect: 'none' }}
     />
   );
