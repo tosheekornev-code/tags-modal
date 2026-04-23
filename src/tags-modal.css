@@ -44,79 +44,79 @@ body {
 
 .rp-modal {
   position: relative;
-  width: 720px;
+  width: 560px;
   max-width: 100%;
   background: #fff;
-  border-radius: 14px;
+  border-radius: 12px;
   box-shadow: 0 24px 60px rgba(18, 22, 32, 0.2), 0 2px 6px rgba(18, 22, 32, 0.08);
-  padding: 28px 36px 36px;
+  padding: 20px 24px 24px;
 }
 
 .rp-close {
   position: absolute;
-  top: 18px;
-  right: 18px;
-  width: 32px;
-  height: 32px;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
   border: 0;
   background: transparent;
   color: #b1b5be;
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 6px;
   display: grid;
   place-items: center;
 }
 .rp-close:hover { color: #6b6f78; background: #f2f3f6; }
 
 .rp-title {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.06em;
   color: #2b2f38;
-  margin: 0 0 22px;
+  margin: 0 0 14px;
   text-transform: uppercase;
 }
 
 /* ============ Sections ============ */
-.rp-section { margin-bottom: 28px; }
+.rp-section { margin-bottom: 16px; }
 
 .rp-section-head {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
+  gap: 6px;
+  margin-bottom: 6px;
 }
 .rp-section-head h3 {
   margin: 0;
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 600;
   color: #2b2f38;
 }
 
-.rp-rows { display: flex; flex-direction: column; gap: 8px; }
+.rp-rows { display: flex; flex-direction: column; gap: 4px; }
 
 /* ============ Row ============ */
 .rp-row {
   display: grid;
-  grid-template-columns: 14px 1fr auto auto 28px;
+  grid-template-columns: 12px 1fr auto 24px;
   align-items: center;
-  gap: 12px;
-  padding: 2px 0;
+  gap: 10px;
+  padding: 0;
 }
 
 /* Drag handle */
 .rp-drag {
   display: grid;
-  grid-template-columns: repeat(2, 3px);
-  grid-template-rows: repeat(3, 3px);
+  grid-template-columns: repeat(2, 2.5px);
+  grid-template-rows: repeat(3, 2.5px);
   gap: 2px;
   cursor: grab;
 }
 .rp-drag span {
   background: #c7cbd2;
   border-radius: 50%;
-  width: 3px;
-  height: 3px;
+  width: 2.5px;
+  height: 2.5px;
 }
 
 /* Input cluster */
@@ -124,51 +124,54 @@ body {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 0 14px 0 12px;
-  height: 44px;
+  gap: 8px;
+  padding: 0 10px 0 10px;
+  height: 34px;
   border: 1.5px solid #e0e2e8;
-  border-radius: 10px;
+  border-radius: 8px;
   background: #fff;
   transition: border-color 0.15s;
 }
 .rp-input:focus-within { border-color: var(--rp-pink); }
 .rp-input input {
   flex: 1;
+  min-width: 0;
   border: 0;
   outline: 0;
   background: transparent;
-  font-size: 15px;
+  font-size: 14px;
   font-family: inherit;
   color: var(--rp-text);
 }
-.rp-input.simple { padding-left: 14px; }
+.rp-input.simple { padding-left: 12px; }
 
 .rp-icon-btn {
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   border: 0;
   background: transparent;
   display: grid;
   place-items: center;
   cursor: default;
   padding: 0;
-  border-radius: 6px;
+  border-radius: 5px;
   flex-shrink: 0;
   position: relative;
 }
 .rp-icon-btn.editable {
   cursor: pointer;
-  width: 36px;
+  width: 32px;
+  height: 24px;
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 3px 0 1px;
+  padding: 0 2px 0 1px;
 }
 .rp-icon-btn.editable:hover { background: #DCDCDC; }
 .rp-icon-btn.empty {
   border: 1.5px dashed #c7cbd2;
-  width: 26px;
+  width: 22px;
+  height: 22px;
   padding: 0;
   justify-content: center;
 }
@@ -179,70 +182,69 @@ body {
 .rp-icon-btn.editable:hover .rp-icon-chevron { color: #4b4f58; }
 
 .rp-icon-placeholder {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 600;
   color: #b1b5be;
 }
 
-/* Toggle switch */
+/* Toggle switch — compact */
 .rp-toggle {
   position: relative;
-  width: 44px;
-  height: 24px;
+  width: 32px;
+  height: 18px;
   border-radius: 999px;
   border: 0;
   background: #d3d6dc;
   cursor: pointer;
   transition: background 0.18s;
   padding: 0;
+  flex-shrink: 0;
 }
 .rp-toggle.on { background: var(--rp-pink); }
 .rp-toggle-thumb {
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 20px;
-  height: 20px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: #fff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   transition: transform 0.18s;
 }
-.rp-toggle.on .rp-toggle-thumb { transform: translateX(20px); }
+.rp-toggle.on .rp-toggle-thumb { transform: translateX(14px); }
 
-.rp-toggle-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #6b6f78;
-  min-width: 34px;
-  letter-spacing: 0.02em;
-}
+/* ВКЛ/ВЫКЛ text — hidden in compact mode */
+.rp-toggle-label { display: none; }
 
 .rp-trash {
   border: 0;
   background: transparent;
   cursor: pointer;
   color: #b1b5be;
-  padding: 4px;
-  border-radius: 6px;
+  padding: 2px;
+  border-radius: 4px;
+  display: grid;
+  place-items: center;
 }
 .rp-trash:hover { color: var(--rp-red); background: #fdeef1; }
-.rp-trash-placeholder { display: block; width: 26px; }
+.rp-trash svg { width: 15px; height: 15px; }
+.rp-trash-placeholder { display: block; width: 22px; }
 
 /* ============ "Create tag" ghost button ============ */
 .rp-add-btn {
-  margin-top: 6px;
+  margin-top: 4px;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  height: 36px;
+  gap: 6px;
+  padding: 6px 12px;
+  height: 30px;
   background: transparent;
   border: 1.5px dashed #c7cbd2;
   border-radius: 10px;
   color: #5c6070;
   font: inherit;
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s, background 0.15s;
   align-self: flex-start;
@@ -252,7 +254,7 @@ body {
   color: var(--rp-green);
   background: rgba(45, 184, 86, 0.06);
 }
-.rp-add-btn svg { flex-shrink: 0; }
+.rp-add-btn svg { flex-shrink: 0; width: 18px; height: 18px; }
 
 /* ============ Icon picker popover ============ */
 .picker-pop {

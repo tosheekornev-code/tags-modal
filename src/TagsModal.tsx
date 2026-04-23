@@ -106,12 +106,12 @@ function TagRow({ tag, onToggle, onRename, onDelete, onIconClick, onCommit, isNe
           title={tag.custom ? 'Сменить иконку' : 'Системная иконка'}
         >
           {tag.icon ? (
-            <FluentIconByEmoji emoji={tag.icon} size={24} className="rp-emoji" />
+            <FluentIconByEmoji emoji={tag.icon} size={18} className="rp-emoji" />
           ) : (
             <span className="rp-icon-placeholder">?</span>
           )}
           {tag.custom && tag.icon && (
-            <ChevronDown className="rp-icon-chevron" size={12} strokeWidth={2.25} aria-hidden />
+            <ChevronDown className="rp-icon-chevron" size={10} strokeWidth={2.25} aria-hidden />
           )}
         </button>
         <input
