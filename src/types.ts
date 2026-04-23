@@ -8,7 +8,7 @@ export interface IconEntry {
 export interface IconCategory {
   id: string;
   name: string;
-  short: string; // short label / emoji for tab button
+  short: string; // short label / emoji for tab button (legacy; kept for reference)
 }
 
 export interface Tag {
@@ -35,9 +35,8 @@ export interface TagsModalProps {
 }
 
 export interface PickerProps {
-  recents: string[];
   onPick: (emoji: string) => void;
   onClose: () => void;
   anchor: HTMLElement | null;
-  currentTag: Tag | undefined;
+  currentTag?: Tag;
 }

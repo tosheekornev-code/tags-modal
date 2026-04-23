@@ -1,7 +1,6 @@
 import type { IconEntry, IconCategory } from './types';
 
 export const ICON_CATEGORIES: IconCategory[] = [
-  { id: 'recent',   name: 'Часто используемые', short: '★' },
   { id: 'smileys',  name: 'Эмоции',             short: '😀' },
   { id: 'people',   name: 'Люди и жесты',       short: '👋' },
   { id: 'nature',   name: 'Животные и природа', short: '🌿' },

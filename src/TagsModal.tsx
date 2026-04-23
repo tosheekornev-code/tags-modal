@@ -173,7 +173,6 @@ export function TagsModal({
   const [cms, setCms] = useState<Comment[]>(initialComments);
   const [pickerTagId, setPickerTagId] = useState<string | null>(null);
   const [pickerAnchor, setPickerAnchor] = useState<HTMLElement | null>(null);
-  const [recents, setRecents] = useState<string[]>(['⭐', '🎂', '💎', '🎁', '🍷', '🔒']);
 
   useEffect(() => { onChangeTags?.(tags); }, [tags]);
   useEffect(() => { onChangeComments?.(cms); }, [cms]);
@@ -195,7 +194,6 @@ export function TagsModal({
   };
   const pickIcon = (emoji: string) => {
     setTags(prev => prev.map(t => t.id === pickerTagId ? { ...t, icon: emoji } : t));
-    setRecents(prev => [emoji, ...prev.filter(r => r !== emoji)].slice(0, 12));
     setPickerTagId(null);
     setPickerAnchor(null);
   };
@@ -275,7 +273,6 @@ export function TagsModal({
 
       {pickerTagId && (
         <PickerPopover
-          recents={recents}
           onPick={pickIcon}
           onClose={closePicker}
           anchor={pickerAnchor}

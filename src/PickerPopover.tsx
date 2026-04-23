@@ -1,16 +1,43 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Flag,
+  Heart,
+  House,
+  Leaf,
+  Package,
+  PartyPopper,
+  Smile,
+  Users,
+  Wine,
+  type LucideIcon,
+} from 'lucide-react';
 import { FluentIcon } from './FluentIcon';
 import { ICON_CATEGORIES, ICONS } from './icons-catalog';
 import type { PickerProps } from './types';
 
-export function PickerPopover({ recents, onPick, onClose, anchor }: PickerProps) {
-  const [cat, setCat] = useState('recent');
-  const [q, setQ] = useState('');
-  const ref = useRef<HTMLDivElement>(null);
+const CATEGORY_ICONS: Record<string, LucideIcon> = {
+  smileys:  Smile,
+  people:   Users,
+  nature:   Leaf,
+  food:     Wine,
+  travel:   House,
+  activity: PartyPopper,
+  objects:  Package,
+  symbols:  Heart,
+  flags:    Flag,
+};
 
+export function PickerPopover({ onPick, onClose, anchor }: PickerProps) {
+  const [q, setQ] = useState('');
+  const [activeCat, setActiveCat] = useState(ICON_CATEGORIES[0].id);
+  const popRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
+
+  // Close on click outside
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
+      if (popRef.current && !popRef.current.contains(e.target as Node)) onClose();
     };
     const t = setTimeout(() => document.addEventListener('mousedown', onDoc), 0);
     return () => {
@@ -19,23 +46,58 @@ export function PickerPopover({ recents, onPick, onClose, anchor }: PickerProps)
     };
   }, [onClose]);
 
+  // Close on Escape
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
   }, [onClose]);
 
-  const filtered = useMemo(() => {
-    if (q.trim()) {
-      const needle = q.toLowerCase().trim();
-      return ICONS.filter(i => i.t.toLowerCase().includes(needle) || i.e.includes(needle));
-    }
-    if (cat === 'recent') {
-      return recents.map(e => ICONS.find(i => i.e === e)).filter((i): i is NonNullable<typeof i> => !!i);
-    }
-    return ICONS.filter(i => i.c === cat);
-  }, [cat, q, recents]);
+  // Group icons by category (for the non-search view)
+  const grouped = useMemo(() => {
+    return ICON_CATEGORIES.map(c => ({
+      ...c,
+      items: ICONS.filter(i => i.c === c.id),
+    }));
+  }, []);
 
+  // Search results (spans all categories)
+  const searchResults = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    if (!needle) return null;
+    return ICONS.filter(i => i.t.toLowerCase().includes(needle) || i.e.includes(needle));
+  }, [q]);
+
+  // Track which section is currently visible — highlight its nav button
+  useEffect(() => {
+    if (searchResults !== null) return; // nav hidden during search
+    const root = scrollRef.current;
+    if (!root) return;
+    const handler = () => {
+      const top = root.scrollTop;
+      const cutoff = top + 40; // a hair below the sticky header top
+      let current = ICON_CATEGORIES[0].id;
+      for (const c of ICON_CATEGORIES) {
+        const el = sectionRefs.current[c.id];
+        if (el && el.offsetTop <= cutoff) current = c.id;
+      }
+      setActiveCat(current);
+    };
+    handler();
+    root.addEventListener('scroll', handler, { passive: true });
+    return () => root.removeEventListener('scroll', handler);
+  }, [searchResults]);
+
+  // Click category nav → smooth-scroll to that section
+  const scrollToCat = (catId: string) => {
+    const root = scrollRef.current;
+    const section = sectionRefs.current[catId];
+    if (!root || !section) return;
+    root.scrollTo({ top: section.offsetTop, behavior: 'smooth' });
+    setActiveCat(catId);
+  };
+
+  // Position relative to the modal shell
   const style: React.CSSProperties = {};
   if (anchor) {
     const r = anchor.getBoundingClientRect();
@@ -48,7 +110,7 @@ export function PickerPopover({ recents, onPick, onClose, anchor }: PickerProps)
   }
 
   return (
-    <div className="picker-pop" ref={ref} style={style}>
+    <div className="picker-pop" ref={popRef} style={style}>
       <div className="pop-head">
         <input
           autoFocus
@@ -69,43 +131,71 @@ export function PickerPopover({ recents, onPick, onClose, anchor }: PickerProps)
         </button>
       </div>
 
-      {!q.trim() && (
-        <div className="pop-tabs">
-          {ICON_CATEGORIES.map(c => (
-            <button
-              key={c.id}
-              className={`pop-tab${cat === c.id ? ' active' : ''}`}
-              onClick={() => setCat(c.id)}
-              title={c.name}
-            >
-              <span className="pop-tab-glyph">{c.short}</span>
-            </button>
-          ))}
+      {!searchResults && (
+        <div className="pop-nav" role="tablist">
+          {ICON_CATEGORIES.map(c => {
+            const Icon = CATEGORY_ICONS[c.id];
+            const isActive = activeCat === c.id;
+            return (
+              <button
+                key={c.id}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                className={`pop-nav-btn${isActive ? ' active' : ''}`}
+                onClick={() => scrollToCat(c.id)}
+                title={c.name}
+              >
+                {Icon ? <Icon size={18} strokeWidth={1.75} /> : <span>{c.short}</span>}
+              </button>
+            );
+          })}
         </div>
       )}
 
-      <div className="pop-grid-wrap">
-        {filtered.length === 0 ? (
-          <div className="pop-empty">Ничего не найдено</div>
+      <div className="pop-list" ref={scrollRef}>
+        {searchResults ? (
+          searchResults.length === 0 ? (
+            <div className="pop-empty">Ничего не найдено</div>
+          ) : (
+            <div className="pop-grid">
+              {searchResults.map((icon, idx) => (
+                <button
+                  key={icon.e + idx}
+                  type="button"
+                  className="pop-cell"
+                  onClick={() => onPick(icon.e)}
+                  title={icon.s}
+                >
+                  <FluentIcon icon={icon} size={24} />
+                </button>
+              ))}
+            </div>
+          )
         ) : (
-          <div className="pop-grid">
-            {filtered.map((icon, idx) => (
-              <button
-                key={icon.e + idx}
-                className="pop-cell"
-                onClick={() => onPick(icon.e)}
-                title={icon.s}
-              >
-                <FluentIcon icon={icon} size={24} />
-              </button>
-            ))}
-          </div>
+          grouped.map(g => (
+            <section
+              key={g.id}
+              className="pop-section"
+              ref={(el) => { sectionRefs.current[g.id] = el; }}
+            >
+              <h4 className="pop-section-head">{g.name}</h4>
+              <div className="pop-grid">
+                {g.items.map((icon, idx) => (
+                  <button
+                    key={icon.e + idx}
+                    type="button"
+                    className="pop-cell"
+                    onClick={() => onPick(icon.e)}
+                    title={icon.s}
+                  >
+                    <FluentIcon icon={icon} size={24} />
+                  </button>
+                ))}
+              </div>
+            </section>
+          ))
         )}
-      </div>
-
-      <div className="pop-foot">
-        <span>{filtered.length} иконок</span>
-        <span className="pop-hint">Fluent Emoji Flat · Microsoft</span>
       </div>
     </div>
   );

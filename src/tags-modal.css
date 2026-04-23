@@ -236,10 +236,11 @@ body {
 }
 .rp-add-btn svg { flex-shrink: 0; }
 
-/* ============ Variant A — Popover ============ */
+/* ============ Icon picker popover ============ */
 .picker-pop {
   position: absolute;
-  width: 340px;
+  width: 360px;
+  height: 440px;
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 16px 48px rgba(18, 22, 32, 0.28), 0 2px 6px rgba(0, 0, 0, 0.08);
@@ -251,11 +252,12 @@ body {
 }
 
 .pop-head {
-  padding: 12px 12px 8px;
+  padding: 12px;
   border-bottom: 1px solid var(--rp-line);
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .pop-search {
@@ -284,35 +286,58 @@ body {
 }
 .pop-close:hover { color: #4b4f58; background: #f2f3f6; }
 
-.pop-tabs {
+/* ── Category nav (horizontal, Lucide icons, gray / active pink) ── */
+.pop-nav {
   display: flex;
   gap: 2px;
   padding: 6px 8px;
   border-bottom: 1px solid var(--rp-line);
-  overflow-x: auto;
+  flex-shrink: 0;
 }
 
-.pop-tab {
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
+.pop-nav-btn {
+  flex: 1;
+  height: 34px;
   border: 0;
   background: transparent;
   border-radius: 6px;
   cursor: pointer;
   display: grid;
   place-items: center;
-  opacity: 0.6;
-  font-size: 18px;
-  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  color: #8a8f98;
+  transition: color 0.12s, background 0.12s, box-shadow 0.12s;
+  padding: 0;
 }
-.pop-tab:hover { background: #f2f3f6; opacity: 1; }
-.pop-tab.active { background: var(--rp-pink-soft); opacity: 1; }
+.pop-nav-btn:hover { color: #3b3f48; background: #f2f3f6; }
+.pop-nav-btn.active {
+  color: var(--rp-pink);
+  box-shadow: inset 0 -2px 0 var(--rp-pink);
+  border-radius: 6px 6px 0 0;
+}
+.pop-nav-btn.active:hover { background: transparent; }
 
-.pop-grid-wrap {
-  max-height: 260px;
+/* ── Scrollable list with sticky section headers ── */
+.pop-list {
+  flex: 1;
   overflow-y: auto;
-  padding: 8px;
+  padding: 0 8px 8px;
+  min-height: 0;
+}
+
+.pop-section { padding-top: 2px; }
+
+.pop-section-head {
+  position: sticky;
+  top: 0;
+  margin: 0;
+  padding: 10px 4px 6px;
+  background: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--rp-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  z-index: 1;
 }
 
 .pop-grid {
@@ -329,25 +354,16 @@ body {
   cursor: pointer;
   display: grid;
   place-items: center;
+  transition: background 0.1s, transform 0.1s;
 }
 .pop-cell:hover { background: var(--rp-pink-soft); transform: scale(1.1); }
 
 .pop-empty {
-  padding: 32px;
+  padding: 48px 24px;
   text-align: center;
   color: var(--rp-muted);
   font-size: 14px;
 }
-
-.pop-foot {
-  padding: 8px 12px;
-  border-top: 1px solid var(--rp-line);
-  font-size: 11px;
-  color: var(--rp-muted);
-  display: flex;
-  justify-content: space-between;
-}
-.pop-hint { opacity: 0.7; }
 
 /* ============ FluentIcon fallback glyph ============ */
 .fi-fallback {
