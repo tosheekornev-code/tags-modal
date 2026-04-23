@@ -1,16 +1,16 @@
 import type { Comment, Tag } from './types';
 
 export const SYSTEM_TAGS: Tag[] = [
-  { id: 't1', name: 'Не пересаживать', icon: '🔒', on: true,  custom: false },
-  { id: 't2', name: 'VIP гость',       icon: '💎', on: true,  custom: false },
-  { id: 't3', name: 'День Рождения',   icon: '🎈', on: true,  custom: false },
-  { id: 't4', name: 'Может опоздать',  icon: '🐢', on: true,  custom: false },
-  { id: 't5', name: 'Подарок',         icon: '🎁', on: false, custom: false },
-  { id: 't6', name: 'Свой алкоголь',   icon: '🍷', on: false, custom: false },
-  { id: 't7', name: 'Новый',           icon: '🆕', on: true,  custom: false },
-  { id: 't8', name: 'С диванами',      icon: '🛋️', on: false, custom: false },
-  { id: 't9', name: 'Не поздравлять',  icon: '🤫', on: true,  custom: false },
-  { id: 't10', name: 'Годовщина',      icon: '💍', on: true,  custom: true  },
+  { id: 't1',  name: 'Не пересаживать', icon: 'restoplace:not-transplant', on: true  },
+  { id: 't2',  name: 'VIP гость',       icon: 'restoplace:vip',            on: true  },
+  { id: 't3',  name: 'День Рождения',   icon: 'restoplace:birthday',       on: true  },
+  { id: 't4',  name: 'Может опоздать',  icon: 'restoplace:may-be-late',    on: true  },
+  { id: 't5',  name: 'Подарок',         icon: 'restoplace:certificate',    on: false },
+  { id: 't6',  name: 'Свой алкоголь',   icon: 'restoplace:own-alcohol',    on: false },
+  { id: 't7',  name: 'Новый',           icon: 'restoplace:new',            on: true  },
+  { id: 't8',  name: 'С диванами',      icon: 'restoplace:sofa',           on: false },
+  { id: 't9',  name: 'Не поздравлять',  icon: 'restoplace:nohappy',        on: true  },
+  { id: 't10', name: 'Годовщина',       icon: '💍',                         on: true  },
 ];
 
 export const COMMENTS: Comment[] = [

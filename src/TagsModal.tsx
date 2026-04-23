@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
-import { FluentIconByEmoji } from './FluentIcon';
+import { TagIcon } from './FluentIcon';
 import { PickerPopover } from './PickerPopover';
 import type { Comment, Tag, TagsModalProps } from './types';
 
@@ -98,19 +98,18 @@ function TagRow({ tag, onToggle, onRename, onDelete, onIconClick, onCommit, isNe
         <button
           ref={iconBtnRef}
           type="button"
-          className={`rp-icon-btn${!tag.icon ? ' empty' : ''}${tag.custom ? ' editable' : ''}`}
+          className={`rp-icon-btn editable${!tag.icon ? ' empty' : ''}`}
           onClick={() => {
-            if (tag.custom && iconBtnRef.current) onIconClick(tag, iconBtnRef.current);
+            if (iconBtnRef.current) onIconClick(tag, iconBtnRef.current);
           }}
-          disabled={!tag.custom}
-          title={tag.custom ? 'Сменить иконку' : 'Системная иконка'}
+          title="Сменить иконку"
         >
           {tag.icon ? (
-            <FluentIconByEmoji emoji={tag.icon} size={24} className="rp-emoji" />
+            <TagIcon reference={tag.icon} size={24} className="rp-emoji" />
           ) : (
             <span className="rp-icon-placeholder">?</span>
           )}
-          {tag.custom && tag.icon && (
+          {tag.icon && (
             <ChevronDown className="rp-icon-chevron" size={12} strokeWidth={2.25} aria-hidden />
           )}
         </button>
@@ -125,13 +124,9 @@ function TagRow({ tag, onToggle, onRename, onDelete, onIconClick, onCommit, isNe
       </div>
       <Toggle on={tag.on} onChange={(v) => onToggle(tag.id, v)} />
       <span className="rp-toggle-label">{tag.on ? 'ВКЛ' : 'ВЫКЛ'}</span>
-      {tag.custom ? (
-        <button className="rp-trash" type="button" onClick={() => onDelete(tag.id)} title="Удалить">
-          <TrashIcon />
-        </button>
-      ) : (
-        <span className="rp-trash-placeholder" />
-      )}
+      <button className="rp-trash" type="button" onClick={() => onDelete(tag.id)} title="Удалить">
+        <TrashIcon />
+      </button>
     </div>
   );
 }
@@ -184,7 +179,7 @@ export function TagsModal({
   // ── Tag actions ──
   const addTag = () => {
     const id = 'new-' + Date.now();
-    setTags(prev => [...prev, { id, name: '', icon: null, on: true, custom: true, isNew: true }]);
+    setTags(prev => [...prev, { id, name: '', icon: null, on: true, isNew: true }]);
   };
   const toggleTag = (id: string, v: boolean) => setTags(prev => prev.map(t => t.id === id ? { ...t, on: v } : t));
   const renameTag = (id: string, name: string) => setTags(prev => prev.map(t => t.id === id ? { ...t, name } : t));

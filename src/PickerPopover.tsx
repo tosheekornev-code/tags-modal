@@ -8,6 +8,7 @@ import {
   PartyPopper,
   Search,
   Smile,
+  Star,
   Users,
   Wine,
   type LucideIcon,
@@ -17,15 +18,16 @@ import { ICON_CATEGORIES, ICONS } from './icons-catalog';
 import type { PickerProps } from './types';
 
 const CATEGORY_ICONS: Record<string, LucideIcon> = {
-  smileys:  Smile,
-  people:   Users,
-  nature:   Leaf,
-  food:     Wine,
-  travel:   House,
-  activity: PartyPopper,
-  objects:  Package,
-  symbols:  Heart,
-  flags:    Flag,
+  restoplace: Star,
+  smileys:    Smile,
+  people:     Users,
+  nature:     Leaf,
+  food:       Wine,
+  travel:     House,
+  activity:   PartyPopper,
+  objects:    Package,
+  symbols:    Heart,
+  flags:      Flag,
 };
 
 export function PickerPopover({ onPick, onClose, anchor }: PickerProps) {
@@ -165,10 +167,10 @@ export function PickerPopover({ onPick, onClose, anchor }: PickerProps) {
             <div className="pop-grid">
               {searchResults.map((icon, idx) => (
                 <button
-                  key={icon.e + idx}
+                  key={`${icon.c}-${icon.s}-${idx}`}
                   type="button"
                   className="pop-cell"
-                  onClick={() => onPick(icon.e)}
+                  onClick={() => onPick(`${icon.c}:${icon.s}`)}
                   title={icon.s}
                 >
                   <FluentIcon icon={icon} size={24} />
@@ -187,10 +189,10 @@ export function PickerPopover({ onPick, onClose, anchor }: PickerProps) {
               <div className="pop-grid">
                 {g.items.map((icon, idx) => (
                   <button
-                    key={icon.e + idx}
+                    key={`${icon.c}-${icon.s}-${idx}`}
                     type="button"
                     className="pop-cell"
-                    onClick={() => onPick(icon.e)}
+                    onClick={() => onPick(`${icon.c}:${icon.s}`)}
                     title={icon.s}
                   >
                     <FluentIcon icon={icon} size={24} />

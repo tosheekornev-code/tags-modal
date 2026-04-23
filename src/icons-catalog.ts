@@ -1,6 +1,7 @@
 import type { IconEntry, IconCategory } from './types';
 
 export const ICON_CATEGORIES: IconCategory[] = [
+  { id: 'restoplace', name: 'Базовые Рестоплейс',  short: '★' },
   { id: 'smileys',  name: 'Эмоции',             short: '😀' },
   { id: 'people',   name: 'Люди и жесты',       short: '👋' },
   { id: 'nature',   name: 'Животные и природа', short: '🌿' },
@@ -21,6 +22,33 @@ export const ICON_CATEGORIES: IconCategory[] = [
 const I = (e: string, s: string, c: string, t: string): IconEntry => ({ e, s, c, t });
 
 export const ICONS: IconEntry[] = [
+  I('','add-places','restoplace','добавить места добавить локации добавить заведения add places new location plus'),
+  I('','add','restoplace','добавить плюс новый create add new plus'),
+  I('','alcohol','restoplace','алкоголь выпивка напитки спиртное alcohol drink booze liquor'),
+  I('','birthday','restoplace','день рождения др именины торт свечи праздник birthday cake candle celebration'),
+  I('','certificate','restoplace','сертификат подарочная карта подарок купон ваучер certificate gift card voucher coupon'),
+  I('','cleaning','restoplace','уборка чистка помыть уборщик cleaning clean housekeeping'),
+  I('','confirmed','restoplace','подтверждено подтверждение галочка ок done confirmed ok check tick verified'),
+  I('','corkage','restoplace','пробковый пробковое сбор штопор cork corkage fee'),
+  I('','corporate','restoplace','корпоратив корпоративный деловая встреча бизнес мероприятие corporate business event meeting'),
+  I('','discount','restoplace','скидка процент акция распродажа discount promo percent off sale'),
+  I('','holiday','restoplace','праздник выходной гирлянда holiday celebration festive'),
+  I('','ice','restoplace','лёд снежинка холодное замороженное ice cold snowflake frozen'),
+  I('','may-be-late','restoplace','может опоздать опоздание задержка поздно черепаха late delay slow tardy'),
+  I('','new','restoplace','новый первый раз новичок первый визит new first visit newcomer'),
+  I('','nohappy','restoplace','не поздравлять без поздравлений молчать грусть quiet no celebration sad'),
+  I('','not-transplant','restoplace','не пересаживать замок закреплено блок зафиксирован not transplant reserved fixed lock'),
+  I('','own-alcohol','restoplace','свой алкоголь своё вино с собой bring own alcohol byob'),
+  I('','photo','restoplace','фото фотосессия съёмка камера фотограф photo photography camera shoot'),
+  I('','place','restoplace','место столик зал столики place table room seat'),
+  I('','preorder','restoplace','предзаказ заказ заранее меню preorder advance order menu'),
+  I('','prepay','restoplace','предоплата оплата заранее залог депозит prepay payment deposit advance'),
+  I('','see','restoplace','смотреть глаз внимание обзор просмотр see look view eye watch'),
+  I('','sofa','restoplace','диваны с диванами мягкая зона лаундж sofa couch lounge'),
+  I('','stop','restoplace','стоп блок заблокировать запрет не пускать stop block ban forbidden'),
+  I('','vip-big','restoplace','вип большой важный гость крупный vip premium important big'),
+  I('','vip','restoplace','вип бриллиант важный гость премиум vip premium diamond important'),
+  I('','window','restoplace','окно у окна вид window view'),
   I('😀','grinning_face','smileys','emotion face grin grinning grinning face happy smile smiley лицо радость смех счастье улыбка эмоции'),
   I('😃','grinning_face_with_big_eyes','smileys','emotion face grinning face with big eyes happy mouth open smile smiley весело лицо радость рот смеется смех улыбка эмоции'),
   I('😄','grinning_face_with_smiling_eyes','smileys','emotion eye face grinning face with smiling eyes happy laugh mouth open smile smiley глаза закрытые лицо радость смеется смех смеяться улыбка эмоции'),
@@ -1306,7 +1334,7 @@ export const ICONS: IconEntry[] = [
   I('🏳️‍🌈','rainbow_flag','flags','country flag pride rainbow rainbow flag гей гомосексульный лгбт радуга радужный страна трансгендер флаг'),
   I('🏳️‍⚧️','transgender_flag','flags','country flag light blue pink transgender transgender flag white белый розовый светло-голубой страна транс трансгендер флаг флаг трансгендерного сообщества'),
   I('🏴‍☠️','pirate_flag','flags','country flag jolly roger pirate pirate flag plunder treasure веселый роджер кости пиратский пиратский флаг пираты страна флаг череп'),
-].filter((i): i is IconEntry => !!(i.e && i.s && i.c));
+].filter((i): i is IconEntry => !!(i.s && i.c));
 
 // Base URL prefix — Vite injects the correct value at build time.
 const LOCAL_BASE = (typeof import.meta !== 'undefined' && import.meta.env?.BASE_URL) || '/';
@@ -1320,4 +1348,17 @@ export const iconSvgUrl = iconLocalUrl;
 
 export function iconByEmoji(emoji: string): IconEntry | undefined {
   return ICONS.find(i => i.e === emoji);
+}
+
+/**
+ * Resolve a Tag.icon reference to an IconEntry. Accepts two forms:
+ *   - unicode emoji char (e.g. "🎂") — matches against Fluent Emoji catalog by `e`
+ *   - "<category>:<slug>" (e.g. "restoplace:birthday") — direct (c, s) lookup
+ */
+export function iconByRef(ref: string): IconEntry | undefined {
+  if (ref.includes(':')) {
+    const [c, s] = ref.split(':', 2);
+    return ICONS.find(i => i.c === c && i.s === s);
+  }
+  return iconByEmoji(ref);
 }
