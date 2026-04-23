@@ -1,0 +1,3404 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Метки — Fluent Emoji Flat пикер</title>
+<style>
+/* ============ Restoplace tag modal — styles ============ */
+
+:root {
+  --rp-bg: #f5f5f7;
+  --rp-text: #1a1d24;
+  --rp-muted: #8a8f98;
+  --rp-line: #e6e7ec;
+  --rp-pink: #D63384;
+  --rp-pink-soft: #fce4ef;
+  --rp-green: #2DB856;
+  --rp-red: #e0576a;
+  --rp-radius: 12px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: var(--rp-text);
+  background: #fff;
+  font-feature-settings: "ss01","cv11";
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============ Dim host background ============ */
+.rp-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(18, 22, 32, 0.55);
+  z-index: 10;
+}
+
+/* ============ Modal shell ============ */
+.rp-modal-shell {
+  position: relative;
+  width: 100%;
+  min-height: 100%;
+  padding: 48px 16px 64px;
+  display: flex;
+  justify-content: center;
+}
+.rp-modal {
+  position: relative;
+  width: 720px;
+  max-width: 100%;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 24px 60px rgba(18,22,32,.2), 0 2px 6px rgba(18,22,32,.08);
+  padding: 28px 36px 36px;
+}
+.rp-close {
+  position: absolute;
+  top: 18px; right: 18px;
+  width: 32px; height: 32px;
+  border: 0; background: transparent;
+  color: #b1b5be;
+  cursor: pointer;
+  border-radius: 8px;
+  display: grid; place-items: center;
+}
+.rp-close:hover { color: #6b6f78; background: #f2f3f6; }
+
+.rp-title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: #2b2f38;
+  margin: 0 0 22px;
+  text-transform: uppercase;
+}
+
+/* ============ Sections ============ */
+.rp-section { margin-bottom: 28px; }
+.rp-section-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.rp-section-head h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #2b2f38;
+}
+
+.rp-rows { display: flex; flex-direction: column; gap: 8px; }
+
+/* ============ Row ============ */
+.rp-row {
+  display: grid;
+  grid-template-columns: 14px 1fr auto auto 28px;
+  align-items: center;
+  gap: 12px;
+  padding: 2px 0;
+}
+.rp-row-add {
+  cursor: pointer;
+}
+.rp-row-add:hover .rp-input { border-color: #c7cbd2; }
+
+/* Drag handle */
+.rp-drag {
+  display: grid;
+  grid-template-columns: repeat(2, 3px);
+  grid-template-rows: repeat(3, 3px);
+  gap: 2px;
+  cursor: grab;
+}
+.rp-drag span { background: #c7cbd2; border-radius: 50%; width: 3px; height: 3px; }
+
+/* Input cluster */
+.rp-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px 0 12px;
+  height: 44px;
+  border: 1.5px solid #e0e2e8;
+  border-radius: 10px;
+  background: #fff;
+  transition: border-color .15s;
+}
+.rp-input:focus-within { border-color: var(--rp-pink); }
+.rp-input input {
+  flex: 1;
+  border: 0; outline: 0; background: transparent;
+  font-size: 15px; font-family: inherit;
+  color: var(--rp-text);
+}
+.rp-input.simple { padding-left: 14px; }
+
+.rp-icon-btn {
+  width: 26px; height: 26px;
+  border: 0; background: transparent;
+  display: grid; place-items: center;
+  cursor: default;
+  padding: 0;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+.rp-icon-btn.editable { cursor: pointer; }
+.rp-icon-btn.editable:hover { background: var(--rp-pink-soft); }
+.rp-icon-btn.empty {
+  border: 1.5px dashed #c7cbd2;
+}
+.rp-icon-btn.add { width: 22px; height: 22px; }
+.rp-emoji {
+  font-size: 20px;
+  line-height: 1;
+  font-family: "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","Twemoji Mozilla",sans-serif;
+}
+.rp-icon-placeholder {
+  font-size: 13px;
+  font-weight: 600;
+  color: #b1b5be;
+}
+
+.rp-add-label {
+  font-size: 15px;
+  color: #7a7f88;
+}
+.rp-add-inline {
+  display: flex; align-items: center; gap: 8px;
+  color: #7a7f88;
+  font-size: 15px;
+}
+
+/* Toggle switch */
+.rp-toggle {
+  position: relative;
+  width: 44px; height: 24px;
+  border-radius: 999px;
+  border: 0;
+  background: #d3d6dc;
+  cursor: pointer;
+  transition: background .18s;
+  padding: 0;
+}
+.rp-toggle.on { background: var(--rp-pink); }
+.rp-toggle-thumb {
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,.2);
+  transition: transform .18s;
+}
+.rp-toggle.on .rp-toggle-thumb { transform: translateX(20px); }
+
+.rp-toggle-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b6f78;
+  min-width: 34px;
+  letter-spacing: .02em;
+}
+
+.rp-trash {
+  border: 0; background: transparent; cursor: pointer;
+  color: #b1b5be;
+  padding: 4px;
+  border-radius: 6px;
+}
+.rp-trash:hover { color: var(--rp-red); background: #fdeef1; }
+.rp-trash-placeholder { display: block; width: 26px; }
+
+/* ================================================================
+   VARIANT A — POPOVER
+================================================================ */
+.picker-pop {
+  position: absolute;
+  width: 340px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 16px 48px rgba(18,22,32,.28), 0 2px 6px rgba(0,0,0,.08);
+  border: 1px solid var(--rp-line);
+  z-index: 50;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.pop-head {
+  padding: 12px 12px 8px;
+  border-bottom: 1px solid var(--rp-line);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pop-search {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 12px;
+  border: 1px solid #e0e2e8;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 14px;
+  outline: 0;
+}
+.pop-search:focus { border-color: var(--rp-pink); }
+.pop-close {
+  flex-shrink: 0;
+  width: 28px; height: 28px;
+  border: 0;
+  background: transparent;
+  color: #b1b5be;
+  border-radius: 6px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.pop-close:hover { color: #4b4f58; background: #f2f3f6; }
+
+.pop-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--rp-line);
+  overflow-x: auto;
+}
+.pop-tab {
+  flex-shrink: 0;
+  width: 32px; height: 32px;
+  border: 0; background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  display: grid; place-items: center;
+  opacity: .6;
+  font-size: 18px;
+}
+.pop-tab:hover { background: #f2f3f6; opacity: 1; }
+.pop-tab.active {
+  background: var(--rp-pink-soft);
+  opacity: 1;
+}
+.pop-tab-glyph {
+  font-family: "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;
+}
+
+.pop-grid-wrap {
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 8px;
+}
+.pop-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
+}
+.pop-cell {
+  aspect-ratio: 1;
+  border: 0; background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  display: grid; place-items: center;
+  font-size: 20px;
+}
+.pop-cell:hover { background: var(--rp-pink-soft); transform: scale(1.1); }
+.pop-glyph {
+  font-family: "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;
+  line-height: 1;
+}
+.pop-empty { padding: 32px; text-align: center; color: var(--rp-muted); font-size: 14px; }
+
+.pop-foot {
+  padding: 8px 12px;
+  border-top: 1px solid var(--rp-line);
+  font-size: 11px;
+  color: var(--rp-muted);
+  display: flex;
+  justify-content: space-between;
+}
+.pop-hint { opacity: .7; }
+
+/* ================================================================
+   VARIANT B — TOP TABS MODAL
+================================================================ */
+.picker-tabs-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(18,22,32,.4);
+  z-index: 50;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.picker-tabs {
+  width: 640px; max-width: 100%;
+  max-height: 90vh;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 24px 60px rgba(18,22,32,.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.tabs-head {
+  padding: 18px 20px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--rp-line);
+}
+.tabs-title { font-weight: 600; font-size: 15px; }
+.tabs-subtitle { color: var(--rp-muted); font-weight: 400; margin-left: 4px; }
+.tabs-close {
+  border: 0; background: transparent; cursor: pointer;
+  font-size: 24px; color: #b1b5be;
+  width: 32px; height: 32px; border-radius: 8px;
+  display: grid; place-items: center;
+}
+.tabs-close:hover { color: #6b6f78; background: #f2f3f6; }
+
+.tabs-search {
+  position: relative;
+  margin: 14px 20px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  height: 40px;
+  border: 1.5px solid #e0e2e8;
+  border-radius: 10px;
+  transition: border-color .15s;
+}
+.tabs-search:focus-within { border-color: var(--rp-pink); }
+.tabs-search input {
+  flex: 1;
+  border: 0; outline: 0; background: transparent;
+  font: inherit; font-size: 14px;
+}
+.tabs-clear {
+  border: 0; background: #e8eaf0; color: #6b6f78;
+  width: 20px; height: 20px;
+  border-radius: 50%; cursor: pointer;
+  display: grid; place-items: center;
+}
+
+.tabs-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px 20px 14px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--rp-line);
+}
+.tabs-tab {
+  flex-shrink: 0;
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 12px;
+  border: 0;
+  background: transparent;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #6b6f78;
+  white-space: nowrap;
+}
+.tabs-tab:hover { background: #f2f3f6; color: var(--rp-text); }
+.tabs-tab.active { background: var(--rp-pink); color: #fff; }
+.tabs-tab.active .tabs-tab-name { color: #fff; }
+.tabs-tab-glyph { font-size: 15px; }
+
+.tabs-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 20px 20px;
+}
+.tabs-section { margin-bottom: 16px; }
+.tabs-section-head {
+  padding: 12px 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--rp-muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.tabs-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 2px;
+}
+.tabs-cell {
+  aspect-ratio: 1;
+  border: 0; background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  display: grid; place-items: center;
+  font-size: 24px;
+  transition: transform .1s, background .1s;
+}
+.tabs-cell:hover { background: var(--rp-pink-soft); transform: scale(1.15); }
+.tabs-glyph {
+  font-family: "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;
+  line-height: 1;
+}
+.tabs-empty {
+  padding: 24px; text-align: center;
+  color: var(--rp-muted); font-size: 14px;
+}
+.tabs-foot {
+  padding: 10px 20px;
+  border-top: 1px solid var(--rp-line);
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--rp-muted);
+}
+.tabs-foot-hint { opacity: .7; }
+
+/* ================================================================
+   VARIANT C — SIDEBAR
+================================================================ */
+.picker-sidebar-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(18,22,32,.45);
+  z-index: 50;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.picker-sidebar {
+  width: 780px; max-width: 100%;
+  height: 600px; max-height: 90vh;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 24px 60px rgba(18,22,32,.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.sb-head {
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--rp-line);
+}
+.sb-title { font-weight: 600; font-size: 15px; }
+.sb-title span { color: var(--rp-pink); margin-left: 4px; }
+.sb-close {
+  border: 0; background: transparent; cursor: pointer;
+  font-size: 24px; color: #b1b5be;
+  width: 32px; height: 32px; border-radius: 8px;
+}
+.sb-close:hover { color: #6b6f78; background: #f2f3f6; }
+
+.sb-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: 0;
+}
+.sb-nav {
+  border-right: 1px solid var(--rp-line);
+  display: flex; flex-direction: column;
+  background: #fafbfc;
+  min-height: 0;
+}
+.sb-search { padding: 12px; }
+.sb-search input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1.5px solid #e0e2e8;
+  border-radius: 8px;
+  font: inherit; font-size: 13px;
+  outline: 0;
+  background: #fff;
+}
+.sb-search input:focus { border-color: var(--rp-pink); }
+.sb-nav-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 8px 8px;
+}
+.sb-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  color: #3b3f48;
+  text-align: left;
+  margin-bottom: 1px;
+}
+.sb-nav-item:hover { background: #eef0f4; }
+.sb-nav-item.active {
+  background: var(--rp-pink-soft);
+  color: var(--rp-pink);
+  font-weight: 500;
+}
+.sb-nav-glyph { font-size: 16px; }
+.sb-nav-name { flex: 1; }
+.sb-nav-count {
+  font-size: 11px; color: var(--rp-muted);
+  font-variant-numeric: tabular-nums;
+}
+.sb-nav-item.active .sb-nav-count { color: var(--rp-pink); opacity: .7; }
+
+.sb-main {
+  overflow-y: auto;
+  padding: 0 20px 20px;
+}
+.sb-section { }
+.sb-section-head.sticky {
+  position: sticky; top: 0;
+  background: #fff;
+  padding: 14px 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--rp-muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  z-index: 1;
+}
+.sb-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+  gap: 2px;
+}
+.sb-cell {
+  aspect-ratio: 1;
+  border: 0; background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  display: grid; place-items: center;
+  font-size: 24px;
+  transition: transform .1s, background .1s;
+}
+.sb-cell:hover { background: var(--rp-pink-soft); transform: scale(1.15); }
+.sb-glyph {
+  font-family: "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;
+  line-height: 1;
+}
+.sb-empty {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--rp-muted);
+}
+.sb-empty-glyph { font-size: 40px; margin-bottom: 8px; }
+.sb-empty-hint { margin-top: 4px; font-size: 12px; opacity: .8; }
+
+.sb-foot {
+  padding: 10px 20px;
+  border-top: 1px solid var(--rp-line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--rp-muted);
+}
+.sb-foot-hint { opacity: .8; }
+.sb-cancel {
+  border: 1px solid var(--rp-line);
+  background: #fff;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font: inherit; font-size: 13px;
+  cursor: pointer;
+  color: #3b3f48;
+}
+.sb-cancel:hover { background: #f2f3f6; }
+
+/* ============ "Create tag" action button (ghost, not a tag) ============ */
+.rp-add-btn {
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  height: 36px;
+  background: transparent;
+  border: 1.5px dashed #c7cbd2;
+  border-radius: 10px;
+  color: #5c6070;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color .15s, color .15s, background .15s;
+  align-self: flex-start;
+}
+.rp-add-btn:hover {
+  border-color: var(--rp-green);
+  color: var(--rp-green);
+  background: rgba(45,184,86,.06);
+}
+.rp-add-btn svg { flex-shrink: 0; }
+
+/* Grid / cell glyph fallback */
+.fi-fallback {
+  font-family: "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;
+}
+.fi-svg { pointer-events: none; }
+.dc-intro {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 48px 24px 8px;
+}
+.dc-intro h1 {
+  font-size: 30px;
+  font-weight: 700;
+  margin: 0 0 12px;
+  letter-spacing: -0.01em;
+}
+.dc-intro p {
+  color: #5c6070;
+  font-size: 15px;
+  line-height: 1.55;
+  margin: 0 0 8px;
+}
+.dc-intro .badge {
+  display: inline-block;
+  background: var(--rp-pink-soft);
+  color: var(--rp-pink);
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-right: 6px;
+}
+.dc-note {
+  background: #f7f8fa;
+  border: 1px solid var(--rp-line);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-top: 16px;
+  font-size: 13px;
+  color: #3b3f48;
+  line-height: 1.55;
+}
+.dc-note b { color: var(--rp-pink); }
+
+body { background: #f0eee9; }
+.dc-note ul { margin: 6px 0 0; padding-left: 18px; }
+.dc-note li { margin: 3px 0; }
+.artboard-frame { width: 820px; height: 980px; background: #eef0f4; overflow: hidden; position: relative; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script>
+// Fluent Emoji Flat — comprehensive catalog.
+// Each entry: { e: unicode char (fallback), s: file_slug, d: directory name, c: category, t: rus+eng tags }
+// SVG: https://cdn.jsdelivr.net/gh/microsoft/fluentui-emoji@main/assets/<d>/Flat/<s>_flat.svg
+
+window.ICON_CATEGORIES = [
+  { id: 'recent',   name: 'Часто используемые', short: '★' },
+  { id: 'smileys',  name: 'Эмоции',             short: '😀' },
+  { id: 'people',   name: 'Люди и жесты',       short: '👋' },
+  { id: 'nature',   name: 'Животные и природа', short: '🌿' },
+  { id: 'food',     name: 'Еда и напитки',      short: '🍷' },
+  { id: 'travel',   name: 'Места и транспорт',  short: '🏠' },
+  { id: 'activity', name: 'Праздники и спорт',  short: '🎉' },
+  { id: 'objects',  name: 'Предметы',           short: '🔑' },
+  { id: 'symbols',  name: 'Символы',            short: '❤️' },
+  { id: 'flags',    name: 'Флаги',              short: '🏁' },
+];
+
+// Helper to build an entry compactly.
+const I = (e, d, s, c, t) => ({ e, d, s, c, t });
+
+window.ICONS = [
+  // =================== SMILEYS & EMOTION ===================
+  I('😀','Grinning face','grinning_face','smileys','улыбка радость smile grinning happy'),
+  I('😃','Grinning face with big eyes','grinning_face_with_big_eyes','smileys','улыбка радость smile happy'),
+  I('😄','Grinning face with smiling eyes','grinning_face_with_smiling_eyes','smileys','радость смех smile happy laugh'),
+  I('😁','Beaming face with smiling eyes','beaming_face_with_smiling_eyes','smileys','улыбка радость beam smile'),
+  I('😆','Grinning squinting face','grinning_squinting_face','smileys','смех laugh squinting'),
+  I('😅','Grinning face with sweat','grinning_face_with_sweat','smileys','пот смех sweat laugh'),
+  I('🤣','Rolling on the floor laughing','rolling_on_the_floor_laughing','smileys','ржу rofl laugh'),
+  I('😂','Face with tears of joy','face_with_tears_of_joy','smileys','смех слёзы lol laugh tears joy'),
+  I('🙂','Slightly smiling face','slightly_smiling_face','smileys','улыбка slight smile'),
+  I('🙃','Upside-down face','upside_down_face','smileys','перевёрнутое upside down'),
+  I('🫠','Melting face','melting_face','smileys','плавится melt tired'),
+  I('😉','Winking face','winking_face','smileys','подмигивать wink'),
+  I('😊','Smiling face with smiling eyes','smiling_face_with_smiling_eyes','smileys','улыбка smile shy'),
+  I('😇','Smiling face with halo','smiling_face_with_halo','smileys','ангел halo angel innocent'),
+  I('🥰','Smiling face with hearts','smiling_face_with_hearts','smileys','любовь сердечки love hearts smile'),
+  I('😍','Smiling face with heart-eyes','smiling_face_with_heart_eyes','smileys','любовь обожание love heart eyes'),
+  I('🤩','Star-struck','star_struck','smileys','звезда восторг star struck wow'),
+  I('😘','Face blowing a kiss','face_blowing_a_kiss','smileys','поцелуй kiss love'),
+  I('😗','Kissing face','kissing_face','smileys','поцелуй kiss'),
+  I('😚','Kissing face with closed eyes','kissing_face_with_closed_eyes','smileys','поцелуй kiss'),
+  I('😙','Kissing face with smiling eyes','kissing_face_with_smiling_eyes','smileys','поцелуй kiss'),
+  I('🥲','Smiling face with tear','smiling_face_with_tear','smileys','слеза улыбка tear smile'),
+  I('😋','Face savoring food','face_savoring_food','smileys','вкусно еда yummy tasty food'),
+  I('😛','Face with tongue','face_with_tongue','smileys','язык tongue'),
+  I('😜','Winking face with tongue','winking_face_with_tongue','smileys','язык wink tongue'),
+  I('🤪','Zany face','zany_face','smileys','безумный crazy zany'),
+  I('😝','Squinting face with tongue','squinting_face_with_tongue','smileys','язык tongue squint'),
+  I('🤑','Money-mouth face','money_mouth_face','smileys','деньги money rich'),
+  I('🤗','Smiling face with open hands','smiling_face_with_open_hands','smileys','обнимать hug'),
+  I('🤭','Face with hand over mouth','face_with_hand_over_mouth','smileys','упс oops'),
+  I('🫢','Face with open eyes and hand over mouth','face_with_open_eyes_and_hand_over_mouth','smileys','шок shock'),
+  I('🫣','Face with peeking eye','face_with_peeking_eye','smileys','подглядывать peek'),
+  I('🤫','Shushing face','shushing_face','smileys','тише тихо shush quiet silent'),
+  I('🤔','Thinking face','thinking_face','smileys','думать thinking think'),
+  I('🫡','Saluting face','saluting_face','smileys','салют salute'),
+  I('🤐','Zipper-mouth face','zipper_mouth_face','smileys','молчание zipper quiet'),
+  I('🤨','Face with raised eyebrow','face_with_raised_eyebrow','smileys','бровь eyebrow suspicious'),
+  I('😐','Neutral face','neutral_face','smileys','нейтральный neutral'),
+  I('😑','Expressionless face','expressionless_face','smileys','безучастный expressionless'),
+  I('😶','Face without mouth','face_without_mouth','smileys','без рта silent'),
+  I('🫥','Dotted line face','dotted_line_face','smileys','исчезающий dotted invisible'),
+  I('😏','Smirking face','smirking_face','smileys','ухмылка smirk'),
+  I('😒','Unamused face','unamused_face','smileys','недовольный unamused'),
+  I('🙄','Face with rolling eyes','face_with_rolling_eyes','smileys','закатить глаза roll eyes'),
+  I('😬','Grimacing face','grimacing_face','smileys','гримаса grimace'),
+  I('😮‍💨','Face exhaling','face_exhaling','smileys','выдох exhale'),
+  I('🤥','Lying face','lying_face','smileys','лжец liar'),
+  I('😌','Relieved face','relieved_face','smileys','облегчение relieved'),
+  I('😔','Pensive face','pensive_face','smileys','грусть pensive sad'),
+  I('😪','Sleepy face','sleepy_face','smileys','сонный sleepy'),
+  I('🤤','Drooling face','drooling_face','smileys','слюни drool'),
+  I('😴','Sleeping face','sleeping_face','smileys','сон sleeping tired'),
+  I('😷','Face with medical mask','face_with_medical_mask','smileys','маска mask medical'),
+  I('🤒','Face with thermometer','face_with_thermometer','smileys','температура термометр sick'),
+  I('🤕','Face with head-bandage','face_with_head_bandage','smileys','повязка injured'),
+  I('🤢','Nauseated face','nauseated_face','smileys','тошнит nausea'),
+  I('🤮','Face vomiting','face_vomiting','smileys','рвота vomit'),
+  I('🤧','Sneezing face','sneezing_face','smileys','чихает sneeze'),
+  I('🥵','Hot face','hot_face','smileys','жарко hot'),
+  I('🥶','Cold face','cold_face','smileys','холодно cold'),
+  I('🥴','Woozy face','woozy_face','smileys','пьяный woozy drunk'),
+  I('😵','Face with crossed-out eyes','face_with_crossed_out_eyes','smileys','нокаут knockout'),
+  I('😵‍💫','Face with spiral eyes','face_with_spiral_eyes','smileys','головокружение dizzy'),
+  I('🤯','Exploding head','exploding_head','smileys','взрыв мозга mind blown'),
+  I('🤠','Cowboy hat face','cowboy_hat_face','smileys','ковбой cowboy'),
+  I('🥳','Partying face','partying_face','smileys','праздник вечеринка party celebration'),
+  I('🥸','Disguised face','disguised_face','smileys','маскировка disguise'),
+  I('😎','Smiling face with sunglasses','smiling_face_with_sunglasses','smileys','крутой очки cool vip'),
+  I('🤓','Nerd face','nerd_face','smileys','ботан nerd'),
+  I('🧐','Face with monocle','face_with_monocle','smileys','монокль monocle'),
+  I('😕','Confused face','confused_face','smileys','растерянный confused'),
+  I('🫤','Face with diagonal mouth','face_with_diagonal_mouth','smileys','равнодушный meh'),
+  I('😟','Worried face','worried_face','smileys','волнение worried'),
+  I('🙁','Slightly frowning face','slightly_frowning_face','smileys','грусть frown'),
+  I('☹️','Frowning face','frowning_face','smileys','грусть frown'),
+  I('😮','Face with open mouth','face_with_open_mouth','smileys','удивление open mouth'),
+  I('😯','Hushed face','hushed_face','smileys','ах hushed'),
+  I('😲','Astonished face','astonished_face','smileys','изумление astonished'),
+  I('😳','Flushed face','flushed_face','smileys','покраснел flushed blush'),
+  I('🥺','Pleading face','pleading_face','smileys','умоляет pleading'),
+  I('🥹','Face holding back tears','face_holding_back_tears','smileys','сдерживает слёзы holding tears'),
+  I('😦','Frowning face with open mouth','frowning_face_with_open_mouth','smileys','шок shock'),
+  I('😧','Anguished face','anguished_face','smileys','мучение anguish'),
+  I('😨','Fearful face','fearful_face','smileys','страх fear'),
+  I('😰','Anxious face with sweat','anxious_face_with_sweat','smileys','тревога anxious sweat'),
+  I('😥','Sad but relieved face','sad_but_relieved_face','smileys','облегчение sad relieved'),
+  I('😢','Crying face','crying_face','smileys','плач tear cry'),
+  I('😭','Loudly crying face','loudly_crying_face','smileys','плач crying cry'),
+  I('😱','Face screaming in fear','face_screaming_in_fear','smileys','крик страх scream'),
+  I('😖','Confounded face','confounded_face','smileys','сконфуженный confounded'),
+  I('😣','Persevering face','persevering_face','smileys','терпение persevere'),
+  I('😞','Disappointed face','disappointed_face','smileys','разочарование disappointed'),
+  I('😓','Downcast face with sweat','downcast_face_with_sweat','smileys','пот downcast'),
+  I('😩','Weary face','weary_face','smileys','усталость weary tired'),
+  I('😫','Tired face','tired_face','smileys','усталость tired'),
+  I('🥱','Yawning face','yawning_face','smileys','зевает yawn'),
+  I('😤','Face with steam from nose','face_with_steam_from_nose','smileys','гнев steam'),
+  I('😡','Enraged face','enraged_face','smileys','злой rage mad'),
+  I('😠','Angry face','angry_face','smileys','злой angry'),
+  I('🤬','Face with symbols on mouth','face_with_symbols_on_mouth','smileys','ругань cursing'),
+  I('😈','Smiling face with horns','smiling_face_with_horns','smileys','чёртик devil'),
+  I('👿','Angry face with horns','angry_face_with_horns','smileys','чёрт devil angry'),
+  I('💀','Skull','skull','smileys','череп skull death'),
+  I('💩','Pile of poo','pile_of_poo','smileys','какашка poo'),
+  I('🤡','Clown face','clown_face','smileys','клоун clown'),
+  I('👹','Ogre','ogre','smileys','огр ogre'),
+  I('👺','Goblin','goblin','smileys','гоблин goblin'),
+  I('👻','Ghost','ghost','smileys','призрак ghost'),
+  I('👽','Alien','alien','smileys','инопланетянин alien'),
+  I('👾','Alien monster','alien_monster','smileys','монстр alien'),
+  I('🤖','Robot','robot','smileys','робот robot'),
+  I('😺','Grinning cat','grinning_cat','smileys','кот улыбка cat'),
+  I('😸','Grinning cat with smiling eyes','grinning_cat_with_smiling_eyes','smileys','кот cat'),
+  I('😹','Cat with tears of joy','cat_with_tears_of_joy','smileys','кот смех cat'),
+  I('😻','Smiling cat with heart-eyes','smiling_cat_with_heart_eyes','smileys','кот любовь cat love'),
+  I('😼','Cat with wry smile','cat_with_wry_smile','smileys','кот хитрый cat'),
+  I('😽','Kissing cat','kissing_cat','smileys','кот поцелуй cat kiss'),
+  I('🙀','Weary cat','weary_cat','smileys','кот шок cat'),
+  I('😿','Crying cat','crying_cat','smileys','кот плачет cat cry'),
+  I('😾','Pouting cat','pouting_cat','smileys','кот злой cat angry'),
+
+  // =================== PEOPLE & BODY ===================
+  I('👋','Waving hand','waving_hand','people','привет махать wave hello hi'),
+  I('🤚','Raised back of hand','raised_back_of_hand','people','рука hand'),
+  I('🖐️','Hand with fingers splayed','hand_with_fingers_splayed','people','пять пальцев five hand'),
+  I('✋','Raised hand','raised_hand','people','рука стоп stop hand'),
+  I('🖖','Vulcan salute','vulcan_salute','people','вулканское приветствие vulcan'),
+  I('🫱','Rightwards hand','rightwards_hand','people','рука hand'),
+  I('🫲','Leftwards hand','leftwards_hand','people','рука hand'),
+  I('🫳','Palm down hand','palm_down_hand','people','ладонь вниз palm down'),
+  I('🫴','Palm up hand','palm_up_hand','people','ладонь вверх palm up'),
+  I('🫷','Leftwards pushing hand','leftwards_pushing_hand','people','толкать push'),
+  I('🫸','Rightwards pushing hand','rightwards_pushing_hand','people','толкать push'),
+  I('👌','Ok hand','ok_hand','people','ок ok'),
+  I('🤌','Pinched fingers','pinched_fingers','people','итальянец italian gesture'),
+  I('🤏','Pinching hand','pinching_hand','people','чуть-чуть pinch'),
+  I('✌️','Victory hand','victory_hand','people','мир peace victory'),
+  I('🤞','Crossed fingers','crossed_fingers','people','пальцы удача luck fingers'),
+  I('🫰','Hand with index finger and thumb crossed','hand_with_index_finger_and_thumb_crossed','people','сердечко little heart'),
+  I('🤟','Love-you gesture','love_you_gesture','people','люблю тебя love you'),
+  I('🤘','Sign of the horns','sign_of_the_horns','people','рок rock horns'),
+  I('🤙','Call me hand','call_me_hand','people','звони call me'),
+  I('👈','Backhand index pointing left','backhand_index_pointing_left','people','влево left'),
+  I('👉','Backhand index pointing right','backhand_index_pointing_right','people','вправо right'),
+  I('👆','Backhand index pointing up','backhand_index_pointing_up','people','вверх up'),
+  I('🖕','Middle finger','middle_finger','people','средний палец middle finger'),
+  I('👇','Backhand index pointing down','backhand_index_pointing_down','people','вниз down'),
+  I('☝️','Index pointing up','index_pointing_up','people','внимание pointing up'),
+  I('🫵','Index pointing at the viewer','index_pointing_at_the_viewer','people','ты you'),
+  I('👍','Thumbs up','thumbs_up','people','ок класс лайк thumbs up like good'),
+  I('👎','Thumbs down','thumbs_down','people','плохо дизлайк thumbs down bad'),
+  I('✊','Raised fist','raised_fist','people','кулак fist'),
+  I('👊','Oncoming fist','oncoming_fist','people','кулак punch'),
+  I('🤛','Left-facing fist','left_facing_fist','people','кулак fist left'),
+  I('🤜','Right-facing fist','right_facing_fist','people','кулак fist right'),
+  I('👏','Clapping hands','clapping_hands','people','аплодисменты clap applause bravo'),
+  I('🙌','Raising hands','raising_hands','people','ура raise hands celebration'),
+  I('🫶','Heart hands','heart_hands','people','сердце руки heart hands love'),
+  I('👐','Open hands','open_hands','people','руки open hands hug'),
+  I('🤲','Palms up together','palms_up_together','people','ладони palms together'),
+  I('🤝','Handshake','handshake','people','рукопожатие deal partner'),
+  I('🙏','Folded hands','folded_hands','people','спасибо thanks please pray'),
+  I('✍️','Writing hand','writing_hand','people','писать write'),
+  I('💅','Nail polish','nail_polish','people','маникюр nail polish'),
+  I('🤳','Selfie','selfie','people','селфи selfie'),
+  I('💪','Flexed biceps','flexed_biceps','people','сила strong muscle power'),
+  I('🦾','Mechanical arm','mechanical_arm','people','протез механический arm'),
+  I('🦿','Mechanical leg','mechanical_leg','people','протез нога leg'),
+  I('🦵','Leg','leg','people','нога leg'),
+  I('🦶','Foot','foot','people','ступня foot'),
+  I('👂','Ear','ear','people','ухо ear'),
+  I('🦻','Ear with hearing aid','ear_with_hearing_aid','people','слуховой аппарат hearing aid'),
+  I('👃','Nose','nose','people','нос nose'),
+  I('🧠','Brain','brain','people','мозг brain'),
+  I('🫀','Anatomical heart','anatomical_heart','people','сердце анатомическое heart'),
+  I('🫁','Lungs','lungs','people','лёгкие lungs'),
+  I('🦷','Tooth','tooth','people','зуб tooth'),
+  I('🦴','Bone','bone','people','кость bone'),
+  I('👀','Eyes','eyes','people','глаза eyes'),
+  I('👁️','Eye','eye','people','глаз eye'),
+  I('👅','Tongue','tongue','people','язык tongue'),
+  I('👄','Mouth','mouth','people','рот mouth'),
+  I('🫦','Biting lip','biting_lip','people','кусает губу lip biting'),
+  I('👶','Baby','baby','people','ребёнок baby child'),
+  I('🧒','Child','child','people','ребёнок child'),
+  I('👦','Boy','boy','people','мальчик boy child'),
+  I('👧','Girl','girl','people','девочка girl child'),
+  I('🧑','Person','person','people','человек person'),
+  I('👱','Person blond hair','person_blond_hair','people','блондин blond'),
+  I('👨','Man','man','people','мужчина man'),
+  I('🧔','Person beard','person_beard','people','борода beard'),
+  I('👩','Woman','woman','people','женщина woman'),
+  I('🧓','Older person','older_person','people','пожилой older'),
+  I('👴','Old man','old_man','people','пожилой дедушка elderly old man'),
+  I('👵','Old woman','old_woman','people','пожилая бабушка elderly old woman'),
+  I('🙍','Person frowning','person_frowning','people','расстроен frown'),
+  I('🙎','Person pouting','person_pouting','people','надулся pout'),
+  I('🙅','Person gesturing no','person_gesturing_no','people','нет no'),
+  I('🙆','Person gesturing ok','person_gesturing_ok','people','ок ok'),
+  I('💁','Person tipping hand','person_tipping_hand','people','информация info'),
+  I('🙋','Person raising hand','person_raising_hand','people','поднимает руку raise hand'),
+  I('🧏','Deaf person','deaf_person','people','глухой deaf'),
+  I('🙇','Person bowing','person_bowing','people','поклон bow sorry'),
+  I('🤦','Person facepalming','person_facepalming','people','фейспалм facepalm'),
+  I('🤷','Person shrugging','person_shrugging','people','пожимает плечами shrug'),
+  I('💂','Guard','guard','people','охранник guard'),
+  I('🥷','Ninja','ninja','people','ниндзя ninja'),
+  I('👷','Construction worker','construction_worker','people','строитель construction worker'),
+  I('🫅','Person with crown','person_with_crown','people','корона crown royalty'),
+  I('🤴','Prince','prince','people','принц prince'),
+  I('👸','Princess','princess','people','принцесса princess'),
+  I('👳','Person wearing turban','person_wearing_turban','people','тюрбан turban'),
+  I('👲','Person with skullcap','person_with_skullcap','people','шапочка skullcap'),
+  I('🧕','Woman with headscarf','woman_with_headscarf','people','платок headscarf hijab'),
+  I('🤵','Person in tuxedo','person_in_tuxedo','people','жених смокинг tuxedo wedding'),
+  I('👰','Person with veil','person_with_veil','people','невеста bride wedding'),
+  I('🤰','Pregnant woman','pregnant_woman','people','беременная pregnant'),
+  I('🫃','Pregnant man','pregnant_man','people','беременный pregnant'),
+  I('🫄','Pregnant person','pregnant_person','people','беременная pregnant'),
+  I('🤱','Breast-feeding','breast_feeding','people','кормит breast feeding'),
+  I('👼','Baby angel','baby_angel','people','ангел baby angel'),
+  I('🎅','Santa claus','santa_claus','people','дед мороз санта santa'),
+  I('🤶','Mrs claus','mrs_claus','people','миссис санта mrs claus'),
+  I('🦸','Superhero','superhero','people','супергерой superhero'),
+  I('🦹','Supervillain','supervillain','people','злодей supervillain'),
+  I('🧙','Mage','mage','people','маг mage wizard'),
+  I('🧚','Fairy','fairy','people','фея fairy'),
+  I('🧛','Vampire','vampire','people','вампир vampire'),
+  I('🧜','Merperson','merperson','people','русалка mermaid'),
+  I('🧝','Elf','elf','people','эльф elf'),
+  I('🧞','Genie','genie','people','джинн genie'),
+  I('🧟','Zombie','zombie','people','зомби zombie'),
+  I('💆','Person getting massage','person_getting_massage','people','массаж massage'),
+  I('💇','Person getting haircut','person_getting_haircut','people','стрижка haircut'),
+  I('🚶','Person walking','person_walking','people','идёт walking'),
+  I('🧍','Person standing','person_standing','people','стоит standing'),
+  I('🧎','Person kneeling','person_kneeling','people','на коленях kneeling'),
+  I('🏃','Person running','person_running','people','бежит running'),
+  I('💃','Woman dancing','woman_dancing','people','танцует dance'),
+  I('🕺','Man dancing','man_dancing','people','танцует dance'),
+  I('🕴️','Person in suit levitating','person_in_suit_levitating','people','костюм левитация suit'),
+  I('👯','People with bunny ears','people_with_bunny_ears','people','зайчики bunny ears'),
+  I('🧖','Person in steamy room','person_in_steamy_room','people','баня sauna steam'),
+  I('🧗','Person climbing','person_climbing','people','альпинист climbing'),
+  I('🤺','Person fencing','person_fencing','people','фехтование fencing'),
+  I('🏇','Horse racing','horse_racing','people','скачки horse racing'),
+  I('⛷️','Skier','skier','people','лыжник skier'),
+  I('🏂','Snowboarder','snowboarder','people','сноубордист snowboard'),
+  I('🏌️','Person golfing','person_golfing','people','гольф golf'),
+  I('🏄','Person surfing','person_surfing','people','сёрфинг surf'),
+  I('🚣','Person rowing boat','person_rowing_boat','people','лодка row boat'),
+  I('🏊','Person swimming','person_swimming','people','плывёт swim'),
+  I('⛹️','Person bouncing ball','person_bouncing_ball','people','баскетбол ball'),
+  I('🏋️','Person lifting weights','person_lifting_weights','people','тяжёлая атлетика weightlifting'),
+  I('🚴','Person biking','person_biking','people','велосипед biking'),
+  I('🚵','Person mountain biking','person_mountain_biking','people','горный велосипед mountain bike'),
+  I('🤸','Person cartwheeling','person_cartwheeling','people','колесо cartwheel'),
+  I('🤼','People wrestling','people_wrestling','people','борьба wrestling'),
+  I('🤽','Person playing water polo','person_playing_water_polo','people','водное поло water polo'),
+  I('🤾','Person playing handball','person_playing_handball','people','гандбол handball'),
+  I('🤹','Person juggling','person_juggling','people','жонглирует juggle'),
+  I('🧘','Person in lotus position','person_in_lotus_position','people','йога lotus yoga'),
+  I('🛀','Person taking bath','person_taking_bath','people','ванна bath'),
+  I('🛌','Person in bed','person_in_bed','people','в постели bed sleep'),
+  I('👭','Women holding hands','women_holding_hands','people','подруги women'),
+  I('👫','Woman and man holding hands','woman_and_man_holding_hands','people','пара couple'),
+  I('👬','Men holding hands','men_holding_hands','people','друзья men'),
+  I('💏','Kiss','kiss','people','поцелуй kiss couple'),
+  I('💑','Couple with heart','couple_with_heart','people','пара с сердцем couple love'),
+  I('👪','Family','family','people','семья family'),
+  I('🗣️','Speaking head','speaking_head','people','говорит speaking'),
+  I('👤','Bust in silhouette','bust_in_silhouette','people','силуэт user silhouette'),
+  I('👥','Busts in silhouette','busts_in_silhouette','people','силуэты users'),
+  I('🫂','People hugging','people_hugging','people','обнимаются hug'),
+  I('👣','Footprints','footprints','people','следы footprints'),
+
+  // =================== ANIMALS & NATURE ===================
+  I('🐶','Dog face','dog_face','nature','собака dog puppy'),
+  I('🐱','Cat face','cat_face','nature','кот cat kitty'),
+  I('🐭','Mouse face','mouse_face','nature','мышь mouse'),
+  I('🐹','Hamster','hamster','nature','хомяк hamster'),
+  I('🐰','Rabbit face','rabbit_face','nature','кролик rabbit bunny'),
+  I('🦊','Fox','fox','nature','лиса fox'),
+  I('🐻','Bear','bear','nature','медведь bear'),
+  I('🐼','Panda','panda','nature','панда panda'),
+  I('🐨','Koala','koala','nature','коала koala'),
+  I('🐯','Tiger face','tiger_face','nature','тигр tiger'),
+  I('🦁','Lion','lion','nature','лев lion'),
+  I('🐮','Cow face','cow_face','nature','корова cow'),
+  I('🐷','Pig face','pig_face','nature','свинья pig'),
+  I('🐽','Pig nose','pig_nose','nature','свиное рыло pig nose'),
+  I('🐸','Frog','frog','nature','лягушка frog'),
+  I('🐵','Monkey face','monkey_face','nature','обезьяна monkey'),
+  I('🙈','See-no-evil monkey','see_no_evil_monkey','nature','не вижу see no evil'),
+  I('🙉','Hear-no-evil monkey','hear_no_evil_monkey','nature','не слышу hear no evil'),
+  I('🙊','Speak-no-evil monkey','speak_no_evil_monkey','nature','не скажу speak no evil'),
+  I('🐒','Monkey','monkey','nature','обезьяна monkey'),
+  I('🐔','Chicken','chicken','nature','курица chicken'),
+  I('🐧','Penguin','penguin','nature','пингвин penguin'),
+  I('🐦','Bird','bird','nature','птица bird'),
+  I('🐤','Baby chick','baby_chick','nature','цыплёнок chick'),
+  I('🐣','Hatching chick','hatching_chick','nature','вылупляется chick'),
+  I('🐥','Front-facing baby chick','front_facing_baby_chick','nature','цыплёнок chick'),
+  I('🦆','Duck','duck','nature','утка duck'),
+  I('🦅','Eagle','eagle','nature','орёл eagle'),
+  I('🦉','Owl','owl','nature','сова owl'),
+  I('🦇','Bat','bat','nature','летучая мышь bat'),
+  I('🐺','Wolf','wolf','nature','волк wolf'),
+  I('🐗','Boar','boar','nature','кабан boar'),
+  I('🐴','Horse face','horse_face','nature','лошадь horse'),
+  I('🦄','Unicorn','unicorn','nature','единорог unicorn'),
+  I('🐝','Honeybee','honeybee','nature','пчела bee'),
+  I('🪱','Worm','worm','nature','червяк worm'),
+  I('🐛','Bug','bug','nature','жук bug'),
+  I('🦋','Butterfly','butterfly','nature','бабочка butterfly'),
+  I('🐌','Snail','snail','nature','улитка snail slow late'),
+  I('🐞','Lady beetle','lady_beetle','nature','божья коровка ladybug'),
+  I('🐜','Ant','ant','nature','муравей ant'),
+  I('🪰','Fly','fly','nature','муха fly'),
+  I('🪲','Beetle','beetle','nature','жук beetle'),
+  I('🪳','Cockroach','cockroach','nature','таракан cockroach'),
+  I('🦗','Cricket','cricket','nature','сверчок cricket'),
+  I('🕷️','Spider','spider','nature','паук spider'),
+  I('🦂','Scorpion','scorpion','nature','скорпион scorpion'),
+  I('🐢','Turtle','turtle','nature','черепаха turtle slow late'),
+  I('🐍','Snake','snake','nature','змея snake'),
+  I('🦎','Lizard','lizard','nature','ящерица lizard'),
+  I('🦖','T-rex','t_rex','nature','динозавр dinosaur'),
+  I('🦕','Sauropod','sauropod','nature','динозавр dinosaur'),
+  I('🐙','Octopus','octopus','nature','осьминог octopus'),
+  I('🦑','Squid','squid','nature','кальмар squid'),
+  I('🦐','Shrimp','shrimp','nature','креветка shrimp'),
+  I('🦞','Lobster','lobster','nature','омар lobster'),
+  I('🦀','Crab','crab','nature','краб crab'),
+  I('🐡','Blowfish','blowfish','nature','рыба фугу blowfish'),
+  I('🐠','Tropical fish','tropical_fish','nature','рыба тропическая fish'),
+  I('🐟','Fish','fish','nature','рыба fish'),
+  I('🐬','Dolphin','dolphin','nature','дельфин dolphin'),
+  I('🐳','Spouting whale','spouting_whale','nature','кит whale'),
+  I('🐋','Whale','whale','nature','кит whale'),
+  I('🦈','Shark','shark','nature','акула shark'),
+  I('🐊','Crocodile','crocodile','nature','крокодил crocodile'),
+  I('🐅','Tiger','tiger','nature','тигр tiger'),
+  I('🐆','Leopard','leopard','nature','леопард leopard'),
+  I('🦓','Zebra','zebra','nature','зебра zebra'),
+  I('🦍','Gorilla','gorilla','nature','горилла gorilla'),
+  I('🦧','Orangutan','orangutan','nature','орангутан orangutan'),
+  I('🐘','Elephant','elephant','nature','слон elephant'),
+  I('🦣','Mammoth','mammoth','nature','мамонт mammoth'),
+  I('🦛','Hippopotamus','hippopotamus','nature','бегемот hippo'),
+  I('🦏','Rhinoceros','rhinoceros','nature','носорог rhino'),
+  I('🐪','Camel','camel','nature','верблюд camel'),
+  I('🐫','Two-hump camel','two_hump_camel','nature','верблюд camel'),
+  I('🦒','Giraffe','giraffe','nature','жираф giraffe'),
+  I('🦘','Kangaroo','kangaroo','nature','кенгуру kangaroo'),
+  I('🦬','Bison','bison','nature','бизон bison'),
+  I('🐃','Water buffalo','water_buffalo','nature','буйвол buffalo'),
+  I('🐂','Ox','ox','nature','бык ox'),
+  I('🐄','Cow','cow','nature','корова cow'),
+  I('🐎','Horse','horse','nature','лошадь horse'),
+  I('🐖','Pig','pig','nature','свинья pig'),
+  I('🐏','Ram','ram','nature','баран ram'),
+  I('🐑','Ewe','ewe','nature','овца sheep'),
+  I('🦙','Llama','llama','nature','лама llama'),
+  I('🐐','Goat','goat','nature','коза goat'),
+  I('🦌','Deer','deer','nature','олень deer'),
+  I('🐕','Dog','dog','nature','собака dog'),
+  I('🐩','Poodle','poodle','nature','пудель poodle'),
+  I('🦮','Guide dog','guide_dog','nature','собака-поводырь guide dog'),
+  I('🐕‍🦺','Service dog','service_dog','nature','служебная собака service dog'),
+  I('🐈','Cat','cat','nature','кот cat'),
+  I('🐈‍⬛','Black cat','black_cat','nature','чёрный кот black cat'),
+  I('🪶','Feather','feather','nature','перо feather'),
+  I('🐓','Rooster','rooster','nature','петух rooster'),
+  I('🦃','Turkey','turkey','nature','индейка turkey'),
+  I('🦚','Peacock','peacock','nature','павлин peacock'),
+  I('🦜','Parrot','parrot','nature','попугай parrot'),
+  I('🦢','Swan','swan','nature','лебедь swan'),
+  I('🦩','Flamingo','flamingo','nature','фламинго flamingo'),
+  I('🕊️','Dove','dove','nature','голубь dove peace'),
+  I('🐇','Rabbit','rabbit','nature','кролик rabbit'),
+  I('🦝','Raccoon','raccoon','nature','енот raccoon'),
+  I('🦨','Skunk','skunk','nature','скунс skunk'),
+  I('🦡','Badger','badger','nature','барсук badger'),
+  I('🦫','Beaver','beaver','nature','бобр beaver'),
+  I('🦦','Otter','otter','nature','выдра otter'),
+  I('🦥','Sloth','sloth','nature','ленивец sloth'),
+  I('🐁','Mouse','mouse','nature','мышь mouse'),
+  I('🐀','Rat','rat','nature','крыса rat'),
+  I('🐿️','Chipmunk','chipmunk','nature','бурундук chipmunk'),
+  I('🦔','Hedgehog','hedgehog','nature','ёжик hedgehog'),
+  I('🐾','Paw prints','paw_prints','nature','следы лап paws'),
+  I('🐉','Dragon','dragon','nature','дракон dragon'),
+  I('🐲','Dragon face','dragon_face','nature','дракон dragon'),
+  I('🌵','Cactus','cactus','nature','кактус cactus'),
+  I('🎄','Christmas tree','christmas_tree','nature','ёлка christmas tree'),
+  I('🌲','Evergreen tree','evergreen_tree','nature','ель tree'),
+  I('🌳','Deciduous tree','deciduous_tree','nature','дерево tree'),
+  I('🌴','Palm tree','palm_tree','nature','пальма palm'),
+  I('🌱','Seedling','seedling','nature','росток sprout'),
+  I('🌿','Herb','herb','nature','трава herb green'),
+  I('☘️','Shamrock','shamrock','nature','трилистник shamrock'),
+  I('🍀','Four leaf clover','four_leaf_clover','nature','удача клевер luck clover'),
+  I('🎍','Pine decoration','pine_decoration','nature','новогоднее украшение pine'),
+  I('🎋','Tanabata tree','tanabata_tree','nature','танабата tanabata'),
+  I('🍃','Leaf fluttering in wind','leaf_fluttering_in_wind','nature','лист leaf'),
+  I('🍂','Fallen leaf','fallen_leaf','nature','лист осень autumn leaf'),
+  I('🍁','Maple leaf','maple_leaf','nature','кленовый лист maple'),
+  I('🪺','Nest with eggs','nest_with_eggs','nature','гнездо nest eggs'),
+  I('🪹','Empty nest','empty_nest','nature','пустое гнездо empty nest'),
+  I('🍄','Mushroom','mushroom','nature','гриб mushroom'),
+  I('🐚','Spiral shell','spiral_shell','nature','ракушка shell'),
+  I('🪸','Coral','coral','nature','коралл coral'),
+  I('🪨','Rock','rock','nature','камень rock'),
+  I('🌾','Sheaf of rice','sheaf_of_rice','nature','колос rice'),
+  I('💐','Bouquet','bouquet','nature','букет flowers'),
+  I('🌷','Tulip','tulip','nature','тюльпан tulip'),
+  I('🌹','Rose','rose','nature','роза rose'),
+  I('🥀','Wilted flower','wilted_flower','nature','увядший цветок wilted'),
+  I('🪻','Hyacinth','hyacinth','nature','гиацинт hyacinth'),
+  I('🪷','Lotus','lotus','nature','лотос lotus'),
+  I('🌺','Hibiscus','hibiscus','nature','гибискус hibiscus'),
+  I('🌸','Cherry blossom','cherry_blossom','nature','сакура cherry blossom'),
+  I('🌼','Blossom','blossom','nature','цветок blossom'),
+  I('🌻','Sunflower','sunflower','nature','подсолнух sunflower'),
+  I('🌞','Sun with face','sun_with_face','nature','солнышко sun'),
+  I('🌝','Full moon face','full_moon_face','nature','луна с лицом moon'),
+  I('🌛','First quarter moon face','first_quarter_moon_face','nature','луна moon'),
+  I('🌜','Last quarter moon face','last_quarter_moon_face','nature','луна moon'),
+  I('🌚','New moon face','new_moon_face','nature','новолуние moon'),
+  I('🌕','Full moon','full_moon','nature','полная луна full moon'),
+  I('🌖','Waning gibbous moon','waning_gibbous_moon','nature','луна moon'),
+  I('🌗','Last quarter moon','last_quarter_moon','nature','луна moon'),
+  I('🌘','Waning crescent moon','waning_crescent_moon','nature','луна moon'),
+  I('🌑','New moon','new_moon','nature','новолуние moon'),
+  I('🌒','Waxing crescent moon','waxing_crescent_moon','nature','луна moon'),
+  I('🌓','First quarter moon','first_quarter_moon','nature','луна moon'),
+  I('🌔','Waxing gibbous moon','waxing_gibbous_moon','nature','луна moon'),
+  I('🌙','Crescent moon','crescent_moon','nature','луна moon night'),
+  I('🌎','Globe showing americas','globe_showing_americas','nature','земля globe'),
+  I('🌍','Globe showing europe-africa','globe_showing_europe_africa','nature','земля globe'),
+  I('🌏','Globe showing asia-australia','globe_showing_asia_australia','nature','земля globe'),
+  I('🪐','Ringed planet','ringed_planet','nature','планета planet'),
+  I('💫','Dizzy','dizzy','nature','головокружение dizzy'),
+  I('⭐','Star','star','nature','звезда star favorite'),
+  I('🌟','Glowing star','glowing_star','nature','звезда star shine'),
+  I('✨','Sparkles','sparkles','nature','искры sparkle shine'),
+  I('⚡','High voltage','high_voltage','nature','молния lightning'),
+  I('☄️','Comet','comet','nature','комета comet'),
+  I('💥','Collision','collision','nature','столкновение boom'),
+  I('🔥','Fire','fire','nature','огонь fire hot'),
+  I('🌪️','Tornado','tornado','nature','торнадо tornado'),
+  I('🌈','Rainbow','rainbow','nature','радуга rainbow'),
+  I('☀️','Sun','sun','nature','солнце sun'),
+  I('🌤️','Sun behind small cloud','sun_behind_small_cloud','nature','солнце облако sun'),
+  I('⛅','Sun behind cloud','sun_behind_cloud','nature','солнце облако sun'),
+  I('🌥️','Sun behind large cloud','sun_behind_large_cloud','nature','облако облачно cloud'),
+  I('☁️','Cloud','cloud','nature','облако cloud'),
+  I('🌦️','Sun behind rain cloud','sun_behind_rain_cloud','nature','дождь солнце sun rain'),
+  I('🌧️','Cloud with rain','cloud_with_rain','nature','дождь rain'),
+  I('⛈️','Cloud with lightning and rain','cloud_with_lightning_and_rain','nature','гроза storm'),
+  I('🌩️','Cloud with lightning','cloud_with_lightning','nature','молния lightning'),
+  I('🌨️','Cloud with snow','cloud_with_snow','nature','снег snow'),
+  I('❄️','Snowflake','snowflake','nature','снежинка snowflake'),
+  I('☃️','Snowman','snowman','nature','снеговик snowman'),
+  I('⛄','Snowman without snow','snowman_without_snow','nature','снеговик snowman'),
+  I('🌬️','Wind face','wind_face','nature','ветер wind'),
+  I('💨','Dashing away','dashing_away','nature','ветер dash'),
+  I('💧','Droplet','droplet','nature','капля droplet'),
+  I('💦','Sweat droplets','sweat_droplets','nature','капли drops'),
+  I('🫧','Bubbles','bubbles','nature','пузырьки bubbles'),
+  I('☔','Umbrella with rain drops','umbrella_with_rain_drops','nature','зонт дождь umbrella rain'),
+  I('☂️','Umbrella','umbrella','nature','зонт umbrella'),
+  I('🌊','Water wave','water_wave','nature','волна wave'),
+
+  // =================== FOOD & DRINK ===================
+  I('🍏','Green apple','green_apple','food','зелёное яблоко green apple'),
+  I('🍎','Red apple','red_apple','food','яблоко apple fruit'),
+  I('🍐','Pear','pear','food','груша pear'),
+  I('🍊','Tangerine','tangerine','food','мандарин tangerine'),
+  I('🍋','Lemon','lemon','food','лимон lemon'),
+  I('🍌','Banana','banana','food','банан banana'),
+  I('🍉','Watermelon','watermelon','food','арбуз watermelon'),
+  I('🍇','Grapes','grapes','food','виноград grapes'),
+  I('🍓','Strawberry','strawberry','food','клубника strawberry'),
+  I('🫐','Blueberries','blueberries','food','черника blueberry'),
+  I('🍈','Melon','melon','food','дыня melon'),
+  I('🍒','Cherries','cherries','food','вишня cherries'),
+  I('🍑','Peach','peach','food','персик peach'),
+  I('🥭','Mango','mango','food','манго mango'),
+  I('🍍','Pineapple','pineapple','food','ананас pineapple'),
+  I('🥥','Coconut','coconut','food','кокос coconut'),
+  I('🥝','Kiwi fruit','kiwi_fruit','food','киви kiwi'),
+  I('🍅','Tomato','tomato','food','помидор tomato'),
+  I('🍆','Eggplant','eggplant','food','баклажан eggplant'),
+  I('🥑','Avocado','avocado','food','авокадо avocado'),
+  I('🥦','Broccoli','broccoli','food','брокколи broccoli'),
+  I('🥬','Leafy green','leafy_green','food','капуста зелень salad'),
+  I('🥒','Cucumber','cucumber','food','огурец cucumber'),
+  I('🌶️','Hot pepper','hot_pepper','food','острый перец spicy hot pepper'),
+  I('🫑','Bell pepper','bell_pepper','food','болгарский перец pepper'),
+  I('🌽','Ear of corn','ear_of_corn','food','кукуруза corn'),
+  I('🥕','Carrot','carrot','food','морковь carrot'),
+  I('🫒','Olive','olive','food','оливка olive'),
+  I('🧄','Garlic','garlic','food','чеснок garlic'),
+  I('🧅','Onion','onion','food','лук onion'),
+  I('🥔','Potato','potato','food','картошка potato'),
+  I('🍠','Roasted sweet potato','roasted_sweet_potato','food','батат sweet potato'),
+  I('🥐','Croissant','croissant','food','круассан croissant'),
+  I('🥯','Bagel','bagel','food','бейгл bagel'),
+  I('🍞','Bread','bread','food','хлеб bread'),
+  I('🥖','Baguette bread','baguette_bread','food','багет baguette'),
+  I('🫓','Flatbread','flatbread','food','лаваш flatbread'),
+  I('🥨','Pretzel','pretzel','food','крендель pretzel'),
+  I('🧀','Cheese wedge','cheese_wedge','food','сыр cheese'),
+  I('🥚','Egg','egg','food','яйцо egg'),
+  I('🍳','Cooking','cooking','food','яичница готовка egg fry'),
+  I('🧈','Butter','butter','food','масло butter'),
+  I('🥞','Pancakes','pancakes','food','блины pancakes'),
+  I('🧇','Waffle','waffle','food','вафля waffle'),
+  I('🥓','Bacon','bacon','food','бекон bacon'),
+  I('🥩','Cut of meat','cut_of_meat','food','мясо стейк steak meat'),
+  I('🍗','Poultry leg','poultry_leg','food','курица chicken'),
+  I('🍖','Meat on bone','meat_on_bone','food','мясо на кости meat'),
+  I('🌭','Hot dog','hot_dog','food','хот-дог hotdog'),
+  I('🍔','Hamburger','hamburger','food','бургер burger'),
+  I('🍟','French fries','french_fries','food','картошка фри fries'),
+  I('🍕','Pizza','pizza','food','пицца pizza'),
+  I('🥪','Sandwich','sandwich','food','сэндвич sandwich'),
+  I('🥙','Stuffed flatbread','stuffed_flatbread','food','шаурма falafel gyro'),
+  I('🧆','Falafel','falafel','food','фалафель falafel'),
+  I('🌮','Taco','taco','food','тако taco'),
+  I('🌯','Burrito','burrito','food','буррито burrito'),
+  I('🫔','Tamale','tamale','food','тамаль tamale'),
+  I('🥗','Green salad','green_salad','food','салат salad'),
+  I('🥘','Shallow pan of food','shallow_pan_of_food','food','паэлья paella'),
+  I('🫕','Fondue','fondue','food','фондю fondue'),
+  I('🥫','Canned food','canned_food','food','консервы canned'),
+  I('🫙','Jar','jar','food','банка jar'),
+  I('🍝','Spaghetti','spaghetti','food','паста spaghetti pasta'),
+  I('🍜','Steaming bowl','steaming_bowl','food','лапша рамен noodles ramen'),
+  I('🍲','Pot of food','pot_of_food','food','рагу stew'),
+  I('🍛','Curry rice','curry_rice','food','карри curry'),
+  I('🍣','Sushi','sushi','food','суши роллы sushi'),
+  I('🍱','Bento box','bento_box','food','бенто bento'),
+  I('🥟','Dumpling','dumpling','food','пельмень dumpling'),
+  I('🦪','Oyster','oyster','food','устрица oyster'),
+  I('🍤','Fried shrimp','fried_shrimp','food','креветка shrimp'),
+  I('🍙','Rice ball','rice_ball','food','онигири rice ball'),
+  I('🍚','Cooked rice','cooked_rice','food','рис rice'),
+  I('🍘','Rice cracker','rice_cracker','food','рисовый крекер'),
+  I('🍥','Fish cake with swirl','fish_cake_with_swirl','food','нарутомаки narutomaki'),
+  I('🍢','Oden','oden','food','оден oden'),
+  I('🍡','Dango','dango','food','данго dango'),
+  I('🥠','Fortune cookie','fortune_cookie','food','печенье с предсказанием fortune cookie'),
+  I('🥮','Moon cake','moon_cake','food','лунный пирог mooncake'),
+  I('🍧','Shaved ice','shaved_ice','food','тёртый лёд shaved ice'),
+  I('🍨','Ice cream','ice_cream','food','мороженое ice cream'),
+  I('🍦','Soft ice cream','soft_ice_cream','food','мороженое ice cream'),
+  I('🥧','Pie','pie','food','пирог pie'),
+  I('🧁','Cupcake','cupcake','food','кекс cupcake'),
+  I('🍰','Shortcake','shortcake','food','торт cake'),
+  I('🎂','Birthday cake','birthday_cake','food','торт день рождения birthday cake'),
+  I('🍮','Custard','custard','food','флан custard'),
+  I('🍭','Lollipop','lollipop','food','леденец lollipop'),
+  I('🍬','Candy','candy','food','конфета candy'),
+  I('🍫','Chocolate bar','chocolate_bar','food','шоколад chocolate'),
+  I('🍿','Popcorn','popcorn','food','попкорн popcorn'),
+  I('🍩','Doughnut','doughnut','food','пончик donut'),
+  I('🍪','Cookie','cookie','food','печенье cookie'),
+  I('🌰','Chestnut','chestnut','food','каштан chestnut'),
+  I('🥜','Peanuts','peanuts','food','арахис peanuts'),
+  I('🫘','Beans','beans','food','бобы beans'),
+  I('🍯','Honey pot','honey_pot','food','мёд honey'),
+  I('🥛','Glass of milk','glass_of_milk','food','молоко milk'),
+  I('🫗','Pouring liquid','pouring_liquid','food','наливает pour'),
+  I('🍼','Baby bottle','baby_bottle','food','детская бутылочка bottle'),
+  I('☕','Hot beverage','hot_beverage','food','кофе чай coffee tea'),
+  I('🫖','Teapot','teapot','food','чайник teapot'),
+  I('🍵','Teacup without handle','teacup_without_handle','food','чай tea'),
+  I('🧃','Beverage box','beverage_box','food','сок juice'),
+  I('🥤','Cup with straw','cup_with_straw','food','стакан с трубочкой cup'),
+  I('🧋','Bubble tea','bubble_tea','food','баббл-ти bubble tea'),
+  I('🍶','Sake','sake','food','саке sake'),
+  I('🍺','Beer mug','beer_mug','food','пиво beer'),
+  I('🍻','Clinking beer mugs','clinking_beer_mugs','food','пиво тост beer cheers'),
+  I('🥂','Clinking glasses','clinking_glasses','food','шампанское cheers champagne'),
+  I('🍾','Bottle with popping cork','bottle_with_popping_cork','food','шампанское праздник champagne'),
+  I('🍷','Wine glass','wine_glass','food','вино wine'),
+  I('🥃','Tumbler glass','tumbler_glass','food','виски whisky свой алкоголь'),
+  I('🍸','Cocktail glass','cocktail_glass','food','коктейль cocktail martini'),
+  I('🍹','Tropical drink','tropical_drink','food','коктейль tropical'),
+  I('🍨','','','food',''), // dup removed below
+  I('🧉','Mate','mate','food','мате mate'),
+  I('🥄','Spoon','spoon','food','ложка spoon'),
+  I('🍴','Fork and knife','fork_and_knife','food','вилка нож fork'),
+  I('🍽️','Fork and knife with plate','fork_and_knife_with_plate','food','тарелка plate'),
+  I('🥣','Bowl with spoon','bowl_with_spoon','food','миска bowl'),
+  I('🥡','Takeout box','takeout_box','food','еда на вынос takeout'),
+  I('🥢','Chopsticks','chopsticks','food','палочки chopsticks'),
+  I('🧂','Salt','salt','food','соль salt'),
+
+  // =================== TRAVEL & PLACES ===================
+  I('🏠','House','house','travel','дом house home'),
+  I('🏡','House with garden','house_with_garden','travel','дом сад house garden'),
+  I('🏘️','Houses','houses','travel','дома houses'),
+  I('🏚️','Derelict house','derelict_house','travel','заброшенный дом derelict'),
+  I('🏗️','Building construction','building_construction','travel','стройка construction'),
+  I('🏭','Factory','factory','travel','завод factory'),
+  I('🏢','Office building','office_building','travel','офис office'),
+  I('🏬','Department store','department_store','travel','магазин с диванами store sofa'),
+  I('🏣','Japanese post office','japanese_post_office','travel','почта post office'),
+  I('🏤','Post office','post_office','travel','почта post office'),
+  I('🏥','Hospital','hospital','travel','больница hospital'),
+  I('🏦','Bank','bank','travel','банк bank'),
+  I('🏨','Hotel','hotel','travel','отель hotel'),
+  I('🏪','Convenience store','convenience_store','travel','магазинчик convenience store'),
+  I('🏫','School','school','travel','школа school'),
+  I('🏩','Love hotel','love_hotel','travel','лав-отель love hotel'),
+  I('💒','Wedding','wedding','travel','свадьба wedding'),
+  I('⛪','Church','church','travel','церковь church'),
+  I('🕌','Mosque','mosque','travel','мечеть mosque'),
+  I('🛕','Hindu temple','hindu_temple','travel','храм hindu temple'),
+  I('🕍','Synagogue','synagogue','travel','синагога synagogue'),
+  I('⛩️','Shinto shrine','shinto_shrine','travel','синтоистский храм shinto'),
+  I('🕋','Kaaba','kaaba','travel','кааба kaaba'),
+  I('⛲','Fountain','fountain','travel','фонтан fountain'),
+  I('⛺','Tent','tent','travel','палатка tent'),
+  I('🌁','Foggy','foggy','travel','туман foggy'),
+  I('🌃','Night with stars','night_with_stars','travel','ночь night stars'),
+  I('🏙️','Cityscape','cityscape','travel','город cityscape'),
+  I('🌄','Sunrise over mountains','sunrise_over_mountains','travel','рассвет sunrise'),
+  I('🌅','Sunrise','sunrise','travel','восход sunrise'),
+  I('🌆','Cityscape at dusk','cityscape_at_dusk','travel','город вечер dusk'),
+  I('🌇','Sunset','sunset','travel','закат sunset'),
+  I('🌉','Bridge at night','bridge_at_night','travel','мост bridge'),
+  I('🎠','Carousel horse','carousel_horse','travel','карусель carousel'),
+  I('🎡','Ferris wheel','ferris_wheel','travel','колесо обозрения ferris wheel'),
+  I('🎢','Roller coaster','roller_coaster','travel','американские горки roller coaster'),
+  I('💈','Barber pole','barber_pole','travel','парикмахерская barber'),
+  I('🎪','Circus tent','circus_tent','travel','цирк circus'),
+  I('🚂','Locomotive','locomotive','travel','локомотив train'),
+  I('🚃','Railway car','railway_car','travel','вагон train car'),
+  I('🚄','High-speed train','high_speed_train','travel','скоростной поезд train'),
+  I('🚅','Bullet train','bullet_train','travel','скоростной поезд bullet train'),
+  I('🚆','Train','train','travel','поезд train'),
+  I('🚇','Metro','metro','travel','метро metro subway'),
+  I('🚈','Light rail','light_rail','travel','электричка light rail'),
+  I('🚉','Station','station','travel','станция station'),
+  I('🚊','Tram','tram','travel','трамвай tram'),
+  I('🚝','Monorail','monorail','travel','монорельс monorail'),
+  I('🚞','Mountain railway','mountain_railway','travel','горная дорога mountain rail'),
+  I('🚋','Tram car','tram_car','travel','трамвай tram'),
+  I('🚌','Bus','bus','travel','автобус bus'),
+  I('🚍','Oncoming bus','oncoming_bus','travel','автобус bus'),
+  I('🚎','Trolleybus','trolleybus','travel','троллейбус trolleybus'),
+  I('🚐','Minibus','minibus','travel','маршрутка minibus'),
+  I('🚑','Ambulance','ambulance','travel','скорая ambulance'),
+  I('🚒','Fire engine','fire_engine','travel','пожарная fire engine'),
+  I('🚓','Police car','police_car','travel','полиция police'),
+  I('🚔','Oncoming police car','oncoming_police_car','travel','полиция police'),
+  I('🚕','Taxi','taxi','travel','такси taxi'),
+  I('🚖','Oncoming taxi','oncoming_taxi','travel','такси taxi'),
+  I('🚗','Automobile','automobile','travel','машина авто car'),
+  I('🚘','Oncoming automobile','oncoming_automobile','travel','машина car'),
+  I('🚙','Sport utility vehicle','sport_utility_vehicle','travel','внедорожник suv'),
+  I('🛻','Pickup truck','pickup_truck','travel','пикап pickup'),
+  I('🚚','Delivery truck','delivery_truck','travel','грузовик truck'),
+  I('🚛','Articulated lorry','articulated_lorry','travel','фура lorry'),
+  I('🚜','Tractor','tractor','travel','трактор tractor'),
+  I('🏎️','Racing car','racing_car','travel','гоночная машина race car'),
+  I('🏍️','Motorcycle','motorcycle','travel','мотоцикл motorcycle'),
+  I('🛵','Motor scooter','motor_scooter','travel','мопед scooter'),
+  I('🦽','Manual wheelchair','manual_wheelchair','travel','инвалидная коляска wheelchair'),
+  I('🦼','Motorized wheelchair','motorized_wheelchair','travel','коляска wheelchair'),
+  I('🛺','Auto rickshaw','auto_rickshaw','travel','тук-тук rickshaw'),
+  I('🚲','Bicycle','bicycle','travel','велосипед bicycle'),
+  I('🛴','Kick scooter','kick_scooter','travel','самокат scooter'),
+  I('🛹','Skateboard','skateboard','travel','скейтборд skateboard'),
+  I('🛼','Roller skate','roller_skate','travel','роликовый конёк skate'),
+  I('🚏','Bus stop','bus_stop','travel','остановка bus stop'),
+  I('🛣️','Motorway','motorway','travel','трасса highway'),
+  I('🛤️','Railway track','railway_track','travel','рельсы rails'),
+  I('🛢️','Oil drum','oil_drum','travel','бочка нефть oil'),
+  I('⛽','Fuel pump','fuel_pump','travel','бензин fuel gas'),
+  I('🛞','Wheel','wheel','travel','колесо wheel'),
+  I('🚨','Police car light','police_car_light','travel','мигалка siren'),
+  I('🚥','Horizontal traffic light','horizontal_traffic_light','travel','светофор traffic'),
+  I('🚦','Vertical traffic light','vertical_traffic_light','travel','светофор traffic'),
+  I('🛑','Stop sign','stop_sign','travel','стоп stop'),
+  I('🚧','Construction','construction','travel','стройка construction'),
+  I('⚓','Anchor','anchor','travel','якорь anchor'),
+  I('🛟','Ring buoy','ring_buoy','travel','спасательный круг buoy'),
+  I('⛵','Sailboat','sailboat','travel','парусник sailboat'),
+  I('🛶','Canoe','canoe','travel','каноэ canoe'),
+  I('🚤','Speedboat','speedboat','travel','катер speedboat'),
+  I('🛳️','Passenger ship','passenger_ship','travel','лайнер passenger ship'),
+  I('⛴️','Ferry','ferry','travel','паром ferry'),
+  I('🛥️','Motor boat','motor_boat','travel','моторная лодка motor boat'),
+  I('🚢','Ship','ship','travel','корабль ship'),
+  I('✈️','Airplane','airplane','travel','самолёт plane flight'),
+  I('🛩️','Small airplane','small_airplane','travel','самолёт small airplane'),
+  I('🛫','Airplane departure','airplane_departure','travel','вылет departure'),
+  I('🛬','Airplane arrival','airplane_arrival','travel','прилёт arrival'),
+  I('🪂','Parachute','parachute','travel','парашют parachute'),
+  I('💺','Seat','seat','travel','место seat'),
+  I('🚁','Helicopter','helicopter','travel','вертолёт helicopter'),
+  I('🚟','Suspension railway','suspension_railway','travel','монорельс'),
+  I('🚠','Mountain cableway','mountain_cableway','travel','канатка cable'),
+  I('🚡','Aerial tramway','aerial_tramway','travel','канатка tram'),
+  I('🛰️','Satellite','satellite','travel','спутник satellite'),
+  I('🚀','Rocket','rocket','travel','ракета rocket fast'),
+  I('🛸','Flying saucer','flying_saucer','travel','тарелка ufo'),
+  I('🛎️','Bellhop bell','bellhop_bell','travel','звонок ресепшена bellhop'),
+  I('🧳','Luggage','luggage','travel','чемодан luggage'),
+  I('⌛','Hourglass done','hourglass_done','travel','песочные часы hourglass'),
+  I('⏳','Hourglass not done','hourglass_not_done','travel','песочные часы hourglass'),
+  I('⌚','Watch','watch','travel','часы watch'),
+  I('⏰','Alarm clock','alarm_clock','travel','будильник alarm'),
+  I('⏱️','Stopwatch','stopwatch','travel','секундомер stopwatch'),
+  I('⏲️','Timer clock','timer_clock','travel','таймер timer'),
+  I('🕰️','Mantelpiece clock','mantelpiece_clock','travel','часы clock'),
+  I('🌋','Volcano','volcano','travel','вулкан volcano'),
+  I('🗻','Mount fuji','mount_fuji','travel','гора фудзияма mountain fuji'),
+  I('🏔️','Snow-capped mountain','snow_capped_mountain','travel','заснеженная гора snowy mountain'),
+  I('⛰️','Mountain','mountain','travel','гора mountain'),
+  I('🏕️','Camping','camping','travel','кемпинг camping'),
+  I('🏖️','Beach with umbrella','beach_with_umbrella','travel','пляж beach summer'),
+  I('🏜️','Desert','desert','travel','пустыня desert'),
+  I('🏝️','Desert island','desert_island','travel','остров island'),
+  I('🏞️','National park','national_park','travel','парк park'),
+  I('🏟️','Stadium','stadium','travel','стадион stadium'),
+  I('🏛️','Classical building','classical_building','travel','классическое здание classic'),
+  I('🗽','Statue of liberty','statue_of_liberty','travel','статуя свободы liberty'),
+  I('🗼','Tokyo tower','tokyo_tower','travel','башня токио tower'),
+  I('🎑','Moon viewing ceremony','moon_viewing_ceremony','travel','цукими moon ceremony'),
+  I('🌌','Milky way','milky_way','travel','млечный путь milky way'),
+
+  // =================== ACTIVITIES ===================
+  I('🎃','Jack-o-lantern','jack_o_lantern','activity','хэллоуин тыква halloween pumpkin'),
+  I('🎄','Christmas tree','christmas_tree','activity','ёлка новый год christmas tree'),
+  I('🎆','Fireworks','fireworks','activity','салют fireworks'),
+  I('🎇','Sparkler','sparkler','activity','бенгальский огонь sparkler'),
+  I('🧨','Firecracker','firecracker','activity','петарда firecracker'),
+  I('✨','Sparkles','sparkles','activity','искры sparkles'),
+  I('🎈','Balloon','balloon','activity','шарик balloon'),
+  I('🎉','Party popper','party_popper','activity','праздник party celebration'),
+  I('🎊','Confetti ball','confetti_ball','activity','конфетти confetti'),
+  I('🎋','Tanabata tree','tanabata_tree','activity','танабата tanabata'),
+  I('🎍','Pine decoration','pine_decoration','activity','украшение pine'),
+  I('🎎','Japanese dolls','japanese_dolls','activity','куклы japanese dolls'),
+  I('🎏','Carp streamer','carp_streamer','activity','стример carp streamer'),
+  I('🎐','Wind chime','wind_chime','activity','колокольчик ветра wind chime'),
+  I('🎑','Moon viewing','moon_viewing_ceremony','activity','цукими moon'),
+  I('🧧','Red envelope','red_envelope','activity','красный конверт red envelope'),
+  I('🎀','Ribbon','ribbon','activity','бант ribbon'),
+  I('🎁','Wrapped gift','wrapped_gift','activity','подарок gift'),
+  I('🎗️','Reminder ribbon','reminder_ribbon','activity','ленточка ribbon'),
+  I('🎟️','Admission tickets','admission_tickets','activity','билет ticket'),
+  I('🎫','Ticket','ticket','activity','билет ticket'),
+  I('🎖️','Military medal','military_medal','activity','медаль medal'),
+  I('🏆','Trophy','trophy','activity','кубок trophy'),
+  I('🏅','Sports medal','sports_medal','activity','медаль medal'),
+  I('🥇','1st place medal','1st_place_medal','activity','первое место gold'),
+  I('🥈','2nd place medal','2nd_place_medal','activity','второе место silver'),
+  I('🥉','3rd place medal','3rd_place_medal','activity','третье место bronze'),
+  I('⚽','Soccer ball','soccer_ball','activity','футбол soccer football'),
+  I('⚾','Baseball','baseball','activity','бейсбол baseball'),
+  I('🥎','Softball','softball','activity','софтбол softball'),
+  I('🏀','Basketball','basketball','activity','баскетбол basketball'),
+  I('🏐','Volleyball','volleyball','activity','волейбол volleyball'),
+  I('🏈','American football','american_football','activity','американский футбол football'),
+  I('🏉','Rugby football','rugby_football','activity','регби rugby'),
+  I('🎾','Tennis','tennis','activity','теннис tennis'),
+  I('🥏','Flying disc','flying_disc','activity','фрисби frisbee'),
+  I('🎳','Bowling','bowling','activity','боулинг bowling'),
+  I('🏏','Cricket game','cricket_game','activity','крикет cricket'),
+  I('🏑','Field hockey','field_hockey','activity','хоккей на траве hockey'),
+  I('🏒','Ice hockey','ice_hockey','activity','хоккей ice hockey'),
+  I('🥍','Lacrosse','lacrosse','activity','лакросс lacrosse'),
+  I('🏓','Ping pong','ping_pong','activity','настольный теннис ping pong'),
+  I('🏸','Badminton','badminton','activity','бадминтон badminton'),
+  I('🥊','Boxing glove','boxing_glove','activity','бокс boxing'),
+  I('🥋','Martial arts uniform','martial_arts_uniform','activity','кимоно martial arts'),
+  I('🥅','Goal net','goal_net','activity','ворота goal'),
+  I('⛳','Flag in hole','flag_in_hole','activity','гольф golf'),
+  I('⛸️','Ice skate','ice_skate','activity','коньки skate'),
+  I('🎣','Fishing pole','fishing_pole','activity','рыбалка fishing'),
+  I('🤿','Diving mask','diving_mask','activity','маска для дайвинга diving'),
+  I('🎽','Running shirt','running_shirt','activity','футболка running'),
+  I('🎿','Skis','skis','activity','лыжи skis'),
+  I('🛷','Sled','sled','activity','санки sled'),
+  I('🥌','Curling stone','curling_stone','activity','кёрлинг curling'),
+  I('🎯','Bullseye','bullseye','activity','цель target goal'),
+  I('🪀','Yo-yo','yo_yo','activity','йо-йо yoyo'),
+  I('🪁','Kite','kite','activity','воздушный змей kite'),
+  I('🎱','Pool 8 ball','pool_8_ball','activity','бильярд pool'),
+  I('🔮','Crystal ball','crystal_ball','activity','магический шар crystal ball'),
+  I('🪄','Magic wand','magic_wand','activity','волшебная палочка magic wand'),
+  I('🧿','Nazar amulet','nazar_amulet','activity','назар nazar'),
+  I('🪬','Hamsa','hamsa','activity','хамса hamsa'),
+  I('🎮','Video game','video_game','activity','игра game gaming'),
+  I('🕹️','Joystick','joystick','activity','джойстик joystick'),
+  I('🎰','Slot machine','slot_machine','activity','игровой автомат slot'),
+  I('🎲','Game die','game_die','activity','кубик dice'),
+  I('🧩','Puzzle piece','puzzle_piece','activity','пазл puzzle'),
+  I('🧸','Teddy bear','teddy_bear','activity','мишка teddy'),
+  I('🪅','Pinata','pinata','activity','пиньята pinata'),
+  I('🪩','Mirror ball','mirror_ball','activity','диско-шар disco ball'),
+  I('🪆','Nesting dolls','nesting_dolls','activity','матрёшка matryoshka'),
+  I('♠️','Spade suit','spade_suit','activity','пики spade'),
+  I('♥️','Heart suit','heart_suit','activity','черви heart'),
+  I('♦️','Diamond suit','diamond_suit','activity','бубны diamond'),
+  I('♣️','Club suit','club_suit','activity','трефы club'),
+  I('♟️','Chess pawn','chess_pawn','activity','пешка chess'),
+  I('🃏','Joker','joker','activity','джокер joker'),
+  I('🀄','Mahjong red dragon','mahjong_red_dragon','activity','маджонг mahjong'),
+  I('🎴','Flower playing cards','flower_playing_cards','activity','карты hanafuda'),
+  I('🎭','Performing arts','performing_arts','activity','театр theatre'),
+  I('🖼️','Framed picture','framed_picture','activity','картина picture'),
+  I('🎨','Artist palette','artist_palette','activity','палитра palette art'),
+  I('🧵','Thread','thread','activity','нитка thread'),
+  I('🪡','Sewing needle','sewing_needle','activity','игла needle'),
+  I('🧶','Yarn','yarn','activity','пряжа yarn'),
+  I('🪢','Knot','knot','activity','узел knot'),
+
+  // =================== OBJECTS ===================
+  I('👓','Glasses','glasses','objects','очки glasses'),
+  I('🕶️','Sunglasses','sunglasses','objects','очки sunglasses'),
+  I('🥽','Goggles','goggles','objects','очки goggles'),
+  I('🥼','Lab coat','lab_coat','objects','халат lab coat'),
+  I('🦺','Safety vest','safety_vest','objects','жилет safety vest'),
+  I('👔','Necktie','necktie','objects','галстук tie'),
+  I('👕','T-shirt','t_shirt','objects','футболка shirt'),
+  I('👖','Jeans','jeans','objects','джинсы jeans'),
+  I('🧣','Scarf','scarf','objects','шарф scarf'),
+  I('🧤','Gloves','gloves','objects','перчатки gloves'),
+  I('🧥','Coat','coat','objects','пальто coat'),
+  I('🧦','Socks','socks','objects','носки socks'),
+  I('👗','Dress','dress','objects','платье dress'),
+  I('👘','Kimono','kimono','objects','кимоно kimono'),
+  I('🥻','Sari','sari','objects','сари sari'),
+  I('🩱','One-piece swimsuit','one_piece_swimsuit','objects','купальник swimsuit'),
+  I('🩲','Briefs','briefs','objects','трусы briefs'),
+  I('🩳','Shorts','shorts','objects','шорты shorts'),
+  I('👙','Bikini','bikini','objects','бикини bikini'),
+  I('👚','Woman’s clothes','womans_clothes','objects','блузка blouse'),
+  I('🪭','Folding hand fan','folding_hand_fan','objects','веер fan'),
+  I('👛','Purse','purse','objects','кошелёк purse'),
+  I('👜','Handbag','handbag','objects','сумка handbag'),
+  I('👝','Clutch bag','clutch_bag','objects','клатч clutch'),
+  I('🛍️','Shopping bags','shopping_bags','objects','пакеты shopping'),
+  I('🎒','Backpack','backpack','objects','рюкзак backpack'),
+  I('🩴','Thong sandal','thong_sandal','objects','сланцы sandal'),
+  I('👞','Man’s shoe','mans_shoe','objects','ботинок shoe'),
+  I('👟','Running shoe','running_shoe','objects','кроссовки sneaker'),
+  I('🥾','Hiking boot','hiking_boot','objects','ботинок boot'),
+  I('🥿','Flat shoe','flat_shoe','objects','балетка flat shoe'),
+  I('👠','High-heeled shoe','high_heeled_shoe','objects','каблук heel'),
+  I('👡','Woman’s sandal','womans_sandal','objects','босоножки sandal'),
+  I('🩰','Ballet shoes','ballet_shoes','objects','пуанты ballet'),
+  I('👢','Woman’s boot','womans_boot','objects','сапог boot'),
+  I('🪮','Hair pick','hair_pick','objects','расчёска hair pick'),
+  I('👑','Crown','crown','objects','корона vip king crown'),
+  I('👒','Woman’s hat','womans_hat','objects','шляпа hat'),
+  I('🎩','Top hat','top_hat','objects','цилиндр top hat'),
+  I('🎓','Graduation cap','graduation_cap','objects','выпускной graduation'),
+  I('🧢','Billed cap','billed_cap','objects','кепка cap'),
+  I('🪖','Military helmet','military_helmet','objects','каска helmet'),
+  I('⛑️','Rescue worker’s helmet','rescue_workers_helmet','objects','каска helmet'),
+  I('📿','Prayer beads','prayer_beads','objects','чётки beads'),
+  I('💄','Lipstick','lipstick','objects','помада lipstick'),
+  I('💍','Ring','ring','objects','кольцо ring engagement'),
+  I('💎','Gem stone','gem_stone','objects','бриллиант vip gem diamond'),
+  I('🔇','Muted speaker','muted_speaker','objects','без звука mute'),
+  I('🔈','Speaker low volume','speaker_low_volume','objects','тихо speaker'),
+  I('🔉','Speaker medium volume','speaker_medium_volume','objects','звук speaker'),
+  I('🔊','Speaker high volume','speaker_high_volume','objects','громко speaker'),
+  I('📢','Loudspeaker','loudspeaker','objects','мегафон loudspeaker'),
+  I('📣','Megaphone','megaphone','objects','мегафон megaphone'),
+  I('📯','Postal horn','postal_horn','objects','почтовый горн horn'),
+  I('🔔','Bell','bell','objects','колокольчик bell notification'),
+  I('🔕','Bell with slash','bell_with_slash','objects','уведомления выключены mute'),
+  I('🎼','Musical score','musical_score','objects','нотный стан musical'),
+  I('🎵','Musical note','musical_note','objects','нота music note'),
+  I('🎶','Musical notes','musical_notes','objects','ноты music notes'),
+  I('🎙️','Studio microphone','studio_microphone','objects','микрофон studio mic'),
+  I('🎚️','Level slider','level_slider','objects','слайдер slider'),
+  I('🎛️','Control knobs','control_knobs','objects','регуляторы knobs'),
+  I('🎤','Microphone','microphone','objects','микрофон karaoke'),
+  I('🎧','Headphone','headphone','objects','наушники headphones'),
+  I('📻','Radio','radio','objects','радио radio'),
+  I('🎷','Saxophone','saxophone','objects','сакс sax'),
+  I('🪗','Accordion','accordion','objects','аккордеон accordion'),
+  I('🎸','Guitar','guitar','objects','гитара guitar'),
+  I('🎹','Musical keyboard','musical_keyboard','objects','клавиши keyboard piano'),
+  I('🎺','Trumpet','trumpet','objects','труба trumpet'),
+  I('🎻','Violin','violin','objects','скрипка violin'),
+  I('🪕','Banjo','banjo','objects','банджо banjo'),
+  I('🥁','Drum','drum','objects','барабан drum'),
+  I('🪘','Long drum','long_drum','objects','барабан long drum'),
+  I('🪇','Maracas','maracas','objects','маракасы maracas'),
+  I('🪈','Flute','flute','objects','флейта flute'),
+  I('📱','Mobile phone','mobile_phone','objects','телефон phone'),
+  I('📲','Mobile phone with arrow','mobile_phone_with_arrow','objects','звонок call'),
+  I('☎️','Telephone','telephone','objects','телефон telephone'),
+  I('📞','Telephone receiver','telephone_receiver','objects','звонок call phone'),
+  I('📟','Pager','pager','objects','пейджер pager'),
+  I('📠','Fax machine','fax_machine','objects','факс fax'),
+  I('🔋','Battery','battery','objects','батарея battery'),
+  I('🪫','Low battery','low_battery','objects','разряжена low battery'),
+  I('🔌','Electric plug','electric_plug','objects','вилка plug'),
+  I('💻','Laptop','laptop','objects','ноутбук laptop'),
+  I('🖥️','Desktop computer','desktop_computer','objects','компьютер desktop'),
+  I('🖨️','Printer','printer','objects','принтер printer'),
+  I('⌨️','Keyboard','keyboard','objects','клавиатура keyboard'),
+  I('🖱️','Computer mouse','computer_mouse','objects','мышь mouse'),
+  I('🖲️','Trackball','trackball','objects','трекбол trackball'),
+  I('💽','Computer disk','computer_disk','objects','диск disk'),
+  I('💾','Floppy disk','floppy_disk','objects','дискета floppy save'),
+  I('💿','Optical disk','optical_disk','objects','cd диск cd'),
+  I('📀','Dvd','dvd','objects','dvd'),
+  I('🧮','Abacus','abacus','objects','счёты abacus'),
+  I('🎥','Movie camera','movie_camera','objects','кинокамера movie'),
+  I('🎞️','Film frames','film_frames','objects','плёнка film'),
+  I('📽️','Film projector','film_projector','objects','проектор projector'),
+  I('🎬','Clapper board','clapper_board','objects','хлопушка clapper'),
+  I('📺','Television','television','objects','телевизор tv'),
+  I('📷','Camera','camera','objects','камера camera'),
+  I('📸','Camera with flash','camera_with_flash','objects','фото photo'),
+  I('📹','Video camera','video_camera','objects','видеокамера video'),
+  I('📼','Videocassette','videocassette','objects','кассета vhs'),
+  I('🔍','Magnifying glass tilted left','magnifying_glass_tilted_left','objects','лупа search'),
+  I('🔎','Magnifying glass tilted right','magnifying_glass_tilted_right','objects','лупа search'),
+  I('🕯️','Candle','candle','objects','свеча candle'),
+  I('💡','Light bulb','light_bulb','objects','лампочка idea'),
+  I('🔦','Flashlight','flashlight','objects','фонарик flashlight'),
+  I('🏮','Red paper lantern','red_paper_lantern','objects','фонарь lantern'),
+  I('🪔','Diya lamp','diya_lamp','objects','лампа diya'),
+  I('📔','Notebook with decorative cover','notebook_with_decorative_cover','objects','блокнот notebook'),
+  I('📕','Closed book','closed_book','objects','книга book'),
+  I('📖','Open book','open_book','objects','книга open book'),
+  I('📗','Green book','green_book','objects','книга book'),
+  I('📘','Blue book','blue_book','objects','книга book'),
+  I('📙','Orange book','orange_book','objects','книга book'),
+  I('📚','Books','books','objects','книги books'),
+  I('📓','Notebook','notebook','objects','блокнот notebook'),
+  I('📒','Ledger','ledger','objects','тетрадь ledger'),
+  I('📃','Page with curl','page_with_curl','objects','страница page'),
+  I('📜','Scroll','scroll','objects','свиток scroll'),
+  I('📄','Page facing up','page_facing_up','objects','страница page'),
+  I('📰','Newspaper','newspaper','objects','газета news'),
+  I('🗞️','Rolled-up newspaper','rolled_up_newspaper','objects','газета news'),
+  I('📑','Bookmark tabs','bookmark_tabs','objects','закладки bookmarks'),
+  I('🔖','Bookmark','bookmark','objects','закладка bookmark'),
+  I('🏷️','Label','label','objects','ярлык метка tag label'),
+  I('💰','Money bag','money_bag','objects','деньги money bag'),
+  I('🪙','Coin','coin','objects','монета coin'),
+  I('💴','Yen banknote','yen_banknote','objects','иена yen'),
+  I('💵','Dollar banknote','dollar_banknote','objects','доллар money cash'),
+  I('💶','Euro banknote','euro_banknote','objects','евро euro'),
+  I('💷','Pound banknote','pound_banknote','objects','фунт pound'),
+  I('💸','Money with wings','money_with_wings','objects','деньги улетают money'),
+  I('💳','Credit card','credit_card','objects','карта оплата card pay'),
+  I('🧾','Receipt','receipt','objects','чек receipt bill'),
+  I('💹','Chart increasing with yen','chart_increasing_with_yen','objects','график chart'),
+  I('✉️','Envelope','envelope','objects','конверт envelope'),
+  I('📧','E-mail','e_mail','objects','почта email'),
+  I('📨','Incoming envelope','incoming_envelope','objects','письмо envelope'),
+  I('📩','Envelope with arrow','envelope_with_arrow','objects','отправить send'),
+  I('📤','Outbox tray','outbox_tray','objects','исходящие outbox'),
+  I('📥','Inbox tray','inbox_tray','objects','входящие inbox'),
+  I('📦','Package','package','objects','посылка package'),
+  I('📫','Closed mailbox with raised flag','closed_mailbox_with_raised_flag','objects','ящик mailbox'),
+  I('📪','Closed mailbox with lowered flag','closed_mailbox_with_lowered_flag','objects','ящик mailbox'),
+  I('📬','Open mailbox with raised flag','open_mailbox_with_raised_flag','objects','ящик mailbox'),
+  I('📭','Open mailbox with lowered flag','open_mailbox_with_lowered_flag','objects','ящик mailbox'),
+  I('📮','Postbox','postbox','objects','почтовый ящик postbox'),
+  I('🗳️','Ballot box with ballot','ballot_box_with_ballot','objects','голосование ballot'),
+  I('✏️','Pencil','pencil','objects','карандаш pencil'),
+  I('✒️','Black nib','black_nib','objects','перо nib'),
+  I('🖋️','Fountain pen','fountain_pen','objects','ручка pen'),
+  I('🖊️','Pen','pen','objects','ручка pen'),
+  I('🖌️','Paintbrush','paintbrush','objects','кисть brush'),
+  I('🖍️','Crayon','crayon','objects','мелок crayon'),
+  I('📝','Memo','memo','objects','блокнот note memo'),
+  I('💼','Briefcase','briefcase','objects','портфель briefcase business'),
+  I('📁','File folder','file_folder','objects','папка folder'),
+  I('📂','Open file folder','open_file_folder','objects','папка folder'),
+  I('🗂️','Card index dividers','card_index_dividers','objects','разделители dividers'),
+  I('📅','Calendar','calendar','objects','календарь calendar'),
+  I('📆','Tear-off calendar','tear_off_calendar','objects','календарь calendar'),
+  I('🗒️','Spiral notepad','spiral_notepad','objects','блокнот notepad'),
+  I('🗓️','Spiral calendar','spiral_calendar','objects','календарь calendar'),
+  I('📇','Card index','card_index','objects','картотека card index'),
+  I('📈','Chart increasing','chart_increasing','objects','график вверх chart up'),
+  I('📉','Chart decreasing','chart_decreasing','objects','график вниз chart down'),
+  I('📊','Bar chart','bar_chart','objects','график bar chart'),
+  I('📋','Clipboard','clipboard','objects','планшет clipboard'),
+  I('📌','Pushpin','pushpin','objects','булавка pin'),
+  I('📍','Round pushpin','round_pushpin','objects','метка pin location'),
+  I('📎','Paperclip','paperclip','objects','скрепка paperclip'),
+  I('🖇️','Linked paperclips','linked_paperclips','objects','скрепки paperclips'),
+  I('📏','Straight ruler','straight_ruler','objects','линейка ruler'),
+  I('📐','Triangular ruler','triangular_ruler','objects','треугольник ruler'),
+  I('✂️','Scissors','scissors','objects','ножницы scissors'),
+  I('🗃️','Card file box','card_file_box','objects','коробка с карточками file box'),
+  I('🗄️','File cabinet','file_cabinet','objects','шкаф file cabinet'),
+  I('🗑️','Wastebasket','wastebasket','objects','корзина trash'),
+  I('🔒','Locked','locked','objects','замок закрыто locked'),
+  I('🔓','Unlocked','unlocked','objects','открыто unlocked'),
+  I('🔏','Locked with pen','locked_with_pen','objects','замок locked'),
+  I('🔐','Locked with key','locked_with_key','objects','замок locked key'),
+  I('🔑','Key','key','objects','ключ key'),
+  I('🗝️','Old key','old_key','objects','ключ old key'),
+  I('🔨','Hammer','hammer','objects','молоток hammer'),
+  I('🪓','Axe','axe','objects','топор axe'),
+  I('⛏️','Pick','pick','objects','кирка pick'),
+  I('⚒️','Hammer and pick','hammer_and_pick','objects','молот кирка hammer pick'),
+  I('🛠️','Hammer and wrench','hammer_and_wrench','objects','инструменты tools'),
+  I('🗡️','Dagger','dagger','objects','кинжал dagger'),
+  I('⚔️','Crossed swords','crossed_swords','objects','мечи swords'),
+  I('💣','Bomb','bomb','objects','бомба bomb'),
+  I('🪃','Boomerang','boomerang','objects','бумеранг boomerang'),
+  I('🏹','Bow and arrow','bow_and_arrow','objects','лук стрела bow arrow'),
+  I('🛡️','Shield','shield','objects','щит shield'),
+  I('🪚','Carpentry saw','carpentry_saw','objects','пила saw'),
+  I('🔧','Wrench','wrench','objects','гаечный ключ wrench'),
+  I('🪛','Screwdriver','screwdriver','objects','отвёртка screwdriver'),
+  I('🔩','Nut and bolt','nut_and_bolt','objects','гайка болт nut bolt'),
+  I('⚙️','Gear','gear','objects','шестерня gear settings'),
+  I('🗜️','Clamp','clamp','objects','тиски clamp'),
+  I('⚖️','Balance scale','balance_scale','objects','весы scale'),
+  I('🦯','White cane','white_cane','objects','трость cane'),
+  I('🔗','Link','link','objects','ссылка link'),
+  I('⛓️‍💥','Broken chain','broken_chain','objects','цепь broken chain'),
+  I('⛓️','Chains','chains','objects','цепи chains'),
+  I('🪝','Hook','hook','objects','крюк hook'),
+  I('🧰','Toolbox','toolbox','objects','ящик с инструментами toolbox'),
+  I('🧲','Magnet','magnet','objects','магнит magnet'),
+  I('🪜','Ladder','ladder','objects','лестница ladder'),
+  I('⚗️','Alembic','alembic','objects','аламбик alembic'),
+  I('🧪','Test tube','test_tube','objects','пробирка test tube'),
+  I('🧫','Petri dish','petri_dish','objects','чашка петри petri'),
+  I('🧬','Dna','dna','objects','днк dna'),
+  I('🔬','Microscope','microscope','objects','микроскоп microscope'),
+  I('🔭','Telescope','telescope','objects','телескоп telescope'),
+  I('📡','Satellite antenna','satellite_antenna','objects','антенна antenna'),
+  I('💉','Syringe','syringe','objects','шприц syringe'),
+  I('🩸','Drop of blood','drop_of_blood','objects','кровь blood'),
+  I('💊','Pill','pill','objects','таблетка pill'),
+  I('🩹','Adhesive bandage','adhesive_bandage','objects','пластырь bandage'),
+  I('🩼','Crutch','crutch','objects','костыль crutch'),
+  I('🩺','Stethoscope','stethoscope','objects','стетоскоп stethoscope'),
+  I('🩻','X-ray','x_ray','objects','рентген xray'),
+  I('🚪','Door','door','objects','дверь door'),
+  I('🛗','Elevator','elevator','objects','лифт elevator'),
+  I('🪞','Mirror','mirror','objects','зеркало mirror'),
+  I('🪟','Window','window','objects','окно window'),
+  I('🛏️','Bed','bed','objects','кровать bed sleep'),
+  I('🛋️','Couch and lamp','couch_and_lamp','objects','диван sofa couch'),
+  I('🪑','Chair','chair','objects','стул chair'),
+  I('🚽','Toilet','toilet','objects','унитаз toilet'),
+  I('🪠','Plunger','plunger','objects','вантуз plunger'),
+  I('🚿','Shower','shower','objects','душ shower'),
+  I('🛁','Bathtub','bathtub','objects','ванна bath'),
+  I('🪤','Mouse trap','mouse_trap','objects','мышеловка trap'),
+  I('🪒','Razor','razor','objects','бритва razor'),
+  I('🧴','Lotion bottle','lotion_bottle','objects','бутылка lotion'),
+  I('🧷','Safety pin','safety_pin','objects','булавка safety pin'),
+  I('🧹','Broom','broom','objects','метла broom'),
+  I('🧺','Basket','basket','objects','корзина basket'),
+  I('🧻','Roll of paper','roll_of_paper','objects','туалетная бумага paper'),
+  I('🪣','Bucket','bucket','objects','ведро bucket'),
+  I('🧼','Soap','soap','objects','мыло soap'),
+  I('🫧','Bubbles','bubbles','objects','пузырьки bubbles'),
+  I('🪥','Toothbrush','toothbrush','objects','щётка toothbrush'),
+  I('🧽','Sponge','sponge','objects','губка sponge'),
+  I('🧯','Fire extinguisher','fire_extinguisher','objects','огнетушитель extinguisher'),
+  I('🛒','Shopping cart','shopping_cart','objects','тележка cart'),
+  I('🚬','Cigarette','cigarette','objects','сигарета cigarette smoking'),
+  I('⚰️','Coffin','coffin','objects','гроб coffin'),
+  I('🪦','Headstone','headstone','objects','надгробие headstone'),
+  I('⚱️','Funeral urn','funeral_urn','objects','урна urn'),
+  I('🧿','Nazar amulet','nazar_amulet','objects','назар nazar'),
+  I('🧸','Teddy bear','teddy_bear','objects','мишка teddy'),
+
+  // =================== SYMBOLS ===================
+  I('🏧','Atm sign','atm_sign','symbols','банкомат atm'),
+  I('🚮','Litter in bin sign','litter_in_bin_sign','symbols','мусор litter'),
+  I('🚰','Potable water','potable_water','symbols','питьевая вода water'),
+  I('♿','Wheelchair symbol','wheelchair_symbol','symbols','доступность wheelchair'),
+  I('🚹','Mens room','mens_room','symbols','мужской туалет men'),
+  I('🚺','Womens room','womens_room','symbols','женский туалет women'),
+  I('🚻','Restroom','restroom','symbols','туалет restroom'),
+  I('🚼','Baby symbol','baby_symbol','symbols','детская baby'),
+  I('🚾','Water closet','water_closet','symbols','wc water closet'),
+  I('🛂','Passport control','passport_control','symbols','паспортный контроль passport'),
+  I('🛃','Customs','customs','symbols','таможня customs'),
+  I('🛄','Baggage claim','baggage_claim','symbols','получение багажа baggage'),
+  I('🛅','Left luggage','left_luggage','symbols','камера хранения luggage'),
+  I('⚠️','Warning','warning','symbols','внимание warning'),
+  I('🚸','Children crossing','children_crossing','symbols','дети children'),
+  I('⛔','No entry','no_entry','symbols','кирпич no entry'),
+  I('🚫','Prohibited','prohibited','symbols','запрет prohibited no'),
+  I('🚳','No bicycles','no_bicycles','symbols','нельзя на велосипеде no bike'),
+  I('🚭','No smoking','no_smoking','symbols','не курить no smoking'),
+  I('🚯','No littering','no_littering','symbols','не мусорить no litter'),
+  I('🚱','Non-potable water','non_potable_water','symbols','непитьевая вода'),
+  I('🚷','No pedestrians','no_pedestrians','symbols','пешеходам нельзя'),
+  I('📵','No mobile phones','no_mobile_phones','symbols','телефоны запрещены'),
+  I('🔞','No one under eighteen','no_one_under_eighteen','symbols','18+ adult'),
+  I('☢️','Radioactive','radioactive','symbols','радиация radioactive'),
+  I('☣️','Biohazard','biohazard','symbols','биологическая опасность biohazard'),
+  I('⬆️','Up arrow','up_arrow','symbols','вверх up'),
+  I('↗️','Up-right arrow','up_right_arrow','symbols','стрелка arrow'),
+  I('➡️','Right arrow','right_arrow','symbols','вправо right'),
+  I('↘️','Down-right arrow','down_right_arrow','symbols','стрелка arrow'),
+  I('⬇️','Down arrow','down_arrow','symbols','вниз down'),
+  I('↙️','Down-left arrow','down_left_arrow','symbols','стрелка arrow'),
+  I('⬅️','Left arrow','left_arrow','symbols','влево left'),
+  I('↖️','Up-left arrow','up_left_arrow','symbols','стрелка arrow'),
+  I('↕️','Up-down arrow','up_down_arrow','symbols','стрелка arrow'),
+  I('↔️','Left-right arrow','left_right_arrow','symbols','стрелка arrow'),
+  I('↩️','Right arrow curving left','right_arrow_curving_left','symbols','назад back'),
+  I('↪️','Left arrow curving right','left_arrow_curving_right','symbols','вперёд forward'),
+  I('⤴️','Right arrow curving up','right_arrow_curving_up','symbols','стрелка arrow'),
+  I('⤵️','Right arrow curving down','right_arrow_curving_down','symbols','стрелка arrow'),
+  I('🔃','Clockwise vertical arrows','clockwise_vertical_arrows','symbols','обновить refresh'),
+  I('🔄','Counterclockwise arrows button','counterclockwise_arrows_button','symbols','обновить refresh'),
+  I('🔙','Back arrow','back_arrow','symbols','назад back'),
+  I('🔚','End arrow','end_arrow','symbols','конец end'),
+  I('🔛','On! arrow','on_arrow','symbols','включено on'),
+  I('🔜','Soon arrow','soon_arrow','symbols','скоро soon'),
+  I('🔝','Top arrow','top_arrow','symbols','топ top'),
+  I('🛐','Place of worship','place_of_worship','symbols','храм worship'),
+  I('⚛️','Atom symbol','atom_symbol','symbols','атом atom'),
+  I('🕉️','Om','om','symbols','ом om'),
+  I('✡️','Star of david','star_of_david','symbols','звезда давида david'),
+  I('☸️','Wheel of dharma','wheel_of_dharma','symbols','дхармачакра dharma'),
+  I('☯️','Yin yang','yin_yang','symbols','инь ян yin yang'),
+  I('✝️','Latin cross','latin_cross','symbols','крест cross'),
+  I('☦️','Orthodox cross','orthodox_cross','symbols','православный крест orthodox cross'),
+  I('☪️','Star and crescent','star_and_crescent','symbols','звезда полумесяц star crescent'),
+  I('☮️','Peace symbol','peace_symbol','symbols','мир peace'),
+  I('🕎','Menorah','menorah','symbols','менора menorah'),
+  I('🔯','Dotted six-pointed star','dotted_six_pointed_star','symbols','звезда star'),
+  I('🪯','Khanda','khanda','symbols','кханда khanda'),
+  I('♈','Aries','aries','symbols','овен aries'),
+  I('♉','Taurus','taurus','symbols','телец taurus'),
+  I('♊','Gemini','gemini','symbols','близнецы gemini'),
+  I('♋','Cancer','cancer','symbols','рак cancer'),
+  I('♌','Leo','leo','symbols','лев leo'),
+  I('♍','Virgo','virgo','symbols','дева virgo'),
+  I('♎','Libra','libra','symbols','весы libra'),
+  I('♏','Scorpio','scorpio','symbols','скорпион scorpio'),
+  I('♐','Sagittarius','sagittarius','symbols','стрелец sagittarius'),
+  I('♑','Capricorn','capricorn','symbols','козерог capricorn'),
+  I('♒','Aquarius','aquarius','symbols','водолей aquarius'),
+  I('♓','Pisces','pisces','symbols','рыбы pisces'),
+  I('⛎','Ophiuchus','ophiuchus','symbols','змееносец ophiuchus'),
+  I('🔀','Shuffle tracks button','shuffle_tracks_button','symbols','перемешать shuffle'),
+  I('🔁','Repeat button','repeat_button','symbols','повтор repeat'),
+  I('🔂','Repeat single button','repeat_single_button','symbols','повтор repeat one'),
+  I('▶️','Play button','play_button','symbols','играть play'),
+  I('⏩','Fast-forward button','fast_forward_button','symbols','перемотка forward'),
+  I('⏭️','Next track button','next_track_button','symbols','следующий next'),
+  I('⏯️','Play or pause button','play_or_pause_button','symbols','пауза играть play pause'),
+  I('◀️','Reverse button','reverse_button','symbols','назад reverse'),
+  I('⏪','Fast reverse button','fast_reverse_button','symbols','назад rewind'),
+  I('⏮️','Last track button','last_track_button','symbols','предыдущий previous'),
+  I('🔼','Upwards button','upwards_button','symbols','вверх up'),
+  I('⏫','Fast up button','fast_up_button','symbols','вверх up'),
+  I('🔽','Downwards button','downwards_button','symbols','вниз down'),
+  I('⏬','Fast down button','fast_down_button','symbols','вниз down'),
+  I('⏸️','Pause button','pause_button','symbols','пауза pause'),
+  I('⏹️','Stop button','stop_button','symbols','стоп stop'),
+  I('⏺️','Record button','record_button','symbols','запись record'),
+  I('⏏️','Eject button','eject_button','symbols','извлечь eject'),
+  I('🎦','Cinema','cinema','symbols','кино cinema'),
+  I('🔅','Dim button','dim_button','symbols','яркость меньше dim'),
+  I('🔆','Bright button','bright_button','symbols','яркость больше bright'),
+  I('📶','Antenna bars','antenna_bars','symbols','сигнал signal'),
+  I('🛜','Wireless','wireless','symbols','wifi wireless'),
+  I('📳','Vibration mode','vibration_mode','symbols','вибрация vibrate'),
+  I('📴','Mobile phone off','mobile_phone_off','symbols','телефон выключен off'),
+  I('♀️','Female sign','female_sign','symbols','женский female'),
+  I('♂️','Male sign','male_sign','symbols','мужской male'),
+  I('⚧️','Transgender symbol','transgender_symbol','symbols','трансгендер trans'),
+  I('✖️','Multiply','multiply','symbols','умножение multiply'),
+  I('➕','Plus','plus','symbols','плюс plus'),
+  I('➖','Minus','minus','symbols','минус minus'),
+  I('➗','Divide','divide','symbols','делить divide'),
+  I('🟰','Heavy equals sign','heavy_equals_sign','symbols','равно equals'),
+  I('♾️','Infinity','infinity','symbols','бесконечность infinity'),
+  I('‼️','Double exclamation mark','double_exclamation_mark','symbols','двойное восклицание !!'),
+  I('⁉️','Exclamation question mark','exclamation_question_mark','symbols','восклицание вопрос ?!'),
+  I('❓','Question mark','question_mark','symbols','вопрос question'),
+  I('❔','White question mark','white_question_mark','symbols','вопрос question'),
+  I('❕','White exclamation mark','white_exclamation_mark','symbols','восклицание exclamation'),
+  I('❗','Exclamation mark','exclamation_mark','symbols','восклицание exclamation'),
+  I('〰️','Wavy dash','wavy_dash','symbols','волна wavy'),
+  I('💱','Currency exchange','currency_exchange','symbols','обмен валют currency'),
+  I('💲','Heavy dollar sign','heavy_dollar_sign','symbols','доллар dollar'),
+  I('⚕️','Medical symbol','medical_symbol','symbols','медицина medical'),
+  I('♻️','Recycling symbol','recycling_symbol','symbols','переработка recycle'),
+  I('⚜️','Fleur-de-lis','fleur_de_lis','symbols','лилия fleur'),
+  I('🔱','Trident emblem','trident_emblem','symbols','трезубец trident'),
+  I('📛','Name badge','name_badge','symbols','бейдж name badge'),
+  I('🔰','Japanese symbol for beginner','japanese_symbol_for_beginner','symbols','новичок beginner'),
+  I('⭕','Hollow red circle','hollow_red_circle','symbols','круг circle'),
+  I('✅','Check mark button','check_mark_button','symbols','галочка check ok'),
+  I('☑️','Check box with check','check_box_with_check','symbols','галочка check'),
+  I('✔️','Check mark','check_mark','symbols','галочка check'),
+  I('❌','Cross mark','cross_mark','symbols','крестик cross no'),
+  I('❎','Cross mark button','cross_mark_button','symbols','крестик cross'),
+  I('➰','Curly loop','curly_loop','symbols','петля loop'),
+  I('➿','Double curly loop','double_curly_loop','symbols','петля loop'),
+  I('〽️','Part alternation mark','part_alternation_mark','symbols','знак mark'),
+  I('✳️','Eight-spoked asterisk','eight_spoked_asterisk','symbols','звёздочка asterisk'),
+  I('✴️','Eight-pointed star','eight_pointed_star','symbols','звезда star'),
+  I('❇️','Sparkle','sparkle','symbols','искра sparkle'),
+  I('©️','Copyright','copyright','symbols','копирайт copyright'),
+  I('®️','Registered','registered','symbols','зарегистрировано registered'),
+  I('™️','Trade mark','trade_mark','symbols','тм trademark'),
+  I('#️⃣','Keycap #','keycap_number_sign','symbols','#'),
+  I('*️⃣','Keycap *','keycap_asterisk','symbols','*'),
+  I('0️⃣','Keycap 0','keycap_0','symbols','0'),
+  I('1️⃣','Keycap 1','keycap_1','symbols','1'),
+  I('2️⃣','Keycap 2','keycap_2','symbols','2'),
+  I('3️⃣','Keycap 3','keycap_3','symbols','3'),
+  I('4️⃣','Keycap 4','keycap_4','symbols','4'),
+  I('5️⃣','Keycap 5','keycap_5','symbols','5'),
+  I('6️⃣','Keycap 6','keycap_6','symbols','6'),
+  I('7️⃣','Keycap 7','keycap_7','symbols','7'),
+  I('8️⃣','Keycap 8','keycap_8','symbols','8'),
+  I('9️⃣','Keycap 9','keycap_9','symbols','9'),
+  I('🔟','Keycap 10','keycap_10','symbols','10'),
+  I('🔠','Input latin uppercase','input_latin_uppercase','symbols','abc'),
+  I('🔡','Input latin lowercase','input_latin_lowercase','symbols','abc'),
+  I('🔢','Input numbers','input_numbers','symbols','123'),
+  I('🔣','Input symbols','input_symbols','symbols','символы symbols'),
+  I('🔤','Input latin letters','input_latin_letters','symbols','abc'),
+  I('🅰️','A button (blood type)','a_button_blood_type','symbols','a'),
+  I('🆎','Ab button (blood type)','ab_button_blood_type','symbols','ab'),
+  I('🅱️','B button (blood type)','b_button_blood_type','symbols','b'),
+  I('🆑','Cl button','cl_button','symbols','cl'),
+  I('🆒','Cool button','cool_button','symbols','круто cool'),
+  I('🆓','Free button','free_button','symbols','бесплатно free'),
+  I('ℹ️','Information','information','symbols','инфо info'),
+  I('🆔','Id button','id_button','symbols','id'),
+  I('Ⓜ️','Circled m','circled_m','symbols','m'),
+  I('🆕','New button','new_button','symbols','новый new'),
+  I('🆖','Ng button','ng_button','symbols','ng'),
+  I('🅾️','O button (blood type)','o_button_blood_type','symbols','o'),
+  I('🆗','Ok button','ok_button','symbols','ок ok'),
+  I('🅿️','P button','p_button','symbols','парковка parking'),
+  I('🆘','Sos button','sos_button','symbols','sos помощь'),
+  I('🆙','Up! button','up_button','symbols','вверх апгрейд up upgrade'),
+  I('🆚','Vs button','vs_button','symbols','vs'),
+  I('🈁','Japanese “here” button','japanese_here_button','symbols','япония'),
+  I('🈂️','Japanese “service charge” button','japanese_service_charge_button','symbols','япония'),
+  I('🈷️','Japanese “monthly amount” button','japanese_monthly_amount_button','symbols','япония'),
+  I('🈶','Japanese “not free of charge” button','japanese_not_free_of_charge_button','symbols','япония'),
+  I('🈯','Japanese “reserved” button','japanese_reserved_button','symbols','япония'),
+  I('🉐','Japanese “bargain” button','japanese_bargain_button','symbols','япония'),
+  I('🈹','Japanese “discount” button','japanese_discount_button','symbols','япония'),
+  I('🈚','Japanese “free of charge” button','japanese_free_of_charge_button','symbols','япония'),
+  I('🈲','Japanese “prohibited” button','japanese_prohibited_button','symbols','япония'),
+  I('🉑','Japanese “acceptable” button','japanese_acceptable_button','symbols','япония'),
+  I('🈸','Japanese “application” button','japanese_application_button','symbols','япония'),
+  I('🈴','Japanese “passing grade” button','japanese_passing_grade_button','symbols','япония'),
+  I('🈳','Japanese “vacancy” button','japanese_vacancy_button','symbols','япония'),
+  I('㊗️','Japanese “congratulations” button','japanese_congratulations_button','symbols','япония'),
+  I('㊙️','Japanese “secret” button','japanese_secret_button','symbols','япония'),
+  I('🈺','Japanese “open for business” button','japanese_open_for_business_button','symbols','япония'),
+  I('🈵','Japanese “no vacancy” button','japanese_no_vacancy_button','symbols','япония'),
+  I('🔴','Red circle','red_circle','symbols','красный круг red'),
+  I('🟠','Orange circle','orange_circle','symbols','оранжевый круг orange'),
+  I('🟡','Yellow circle','yellow_circle','symbols','жёлтый круг yellow'),
+  I('🟢','Green circle','green_circle','symbols','зелёный круг green'),
+  I('🔵','Blue circle','blue_circle','symbols','синий круг blue'),
+  I('🟣','Purple circle','purple_circle','symbols','фиолетовый круг purple'),
+  I('🟤','Brown circle','brown_circle','symbols','коричневый круг brown'),
+  I('⚫','Black circle','black_circle','symbols','чёрный круг black'),
+  I('⚪','White circle','white_circle','symbols','белый круг white'),
+  I('🟥','Red square','red_square','symbols','красный квадрат'),
+  I('🟧','Orange square','orange_square','symbols','оранжевый квадрат'),
+  I('🟨','Yellow square','yellow_square','symbols','жёлтый квадрат'),
+  I('🟩','Green square','green_square','symbols','зелёный квадрат'),
+  I('🟦','Blue square','blue_square','symbols','синий квадрат'),
+  I('🟪','Purple square','purple_square','symbols','фиолетовый квадрат'),
+  I('🟫','Brown square','brown_square','symbols','коричневый квадрат'),
+  I('⬛','Black large square','black_large_square','symbols','чёрный квадрат'),
+  I('⬜','White large square','white_large_square','symbols','белый квадрат'),
+  I('◼️','Black medium square','black_medium_square','symbols','чёрный square'),
+  I('◻️','White medium square','white_medium_square','symbols','белый square'),
+  I('◾','Black medium-small square','black_medium_small_square','symbols','квадрат'),
+  I('◽','White medium-small square','white_medium_small_square','symbols','квадрат'),
+  I('▪️','Black small square','black_small_square','symbols','квадрат'),
+  I('▫️','White small square','white_small_square','symbols','квадрат'),
+  I('🔶','Large orange diamond','large_orange_diamond','symbols','ромб diamond'),
+  I('🔷','Large blue diamond','large_blue_diamond','symbols','ромб diamond'),
+  I('🔸','Small orange diamond','small_orange_diamond','symbols','ромб diamond'),
+  I('🔹','Small blue diamond','small_blue_diamond','symbols','ромб diamond'),
+  I('🔺','Red triangle pointed up','red_triangle_pointed_up','symbols','треугольник triangle'),
+  I('🔻','Red triangle pointed down','red_triangle_pointed_down','symbols','треугольник triangle'),
+  I('💠','Diamond with a dot','diamond_with_a_dot','symbols','ромб diamond'),
+  I('🔘','Radio button','radio_button','symbols','радио кнопка radio'),
+  I('🔳','White square button','white_square_button','symbols','кнопка button'),
+  I('🔲','Black square button','black_square_button','symbols','кнопка button'),
+  I('❤️','Red heart','red_heart','symbols','сердце любовь heart love'),
+  I('🧡','Orange heart','orange_heart','symbols','оранжевое сердце orange heart'),
+  I('💛','Yellow heart','yellow_heart','symbols','жёлтое сердце yellow heart'),
+  I('💚','Green heart','green_heart','symbols','зелёное сердце green heart'),
+  I('💙','Blue heart','blue_heart','symbols','синее сердце blue heart'),
+  I('💜','Purple heart','purple_heart','symbols','фиолетовое сердце purple heart'),
+  I('🖤','Black heart','black_heart','symbols','чёрное сердце black heart'),
+  I('🤍','White heart','white_heart','symbols','белое сердце white heart'),
+  I('🤎','Brown heart','brown_heart','symbols','коричневое сердце brown heart'),
+  I('🩷','Pink heart','pink_heart','symbols','розовое сердце pink heart'),
+  I('🩵','Light blue heart','light_blue_heart','symbols','голубое сердце light blue heart'),
+  I('🩶','Grey heart','grey_heart','symbols','серое сердце grey heart'),
+  I('💔','Broken heart','broken_heart','symbols','разбитое сердце broken heart'),
+  I('❤️‍🔥','Heart on fire','heart_on_fire','symbols','горящее сердце heart fire'),
+  I('❤️‍🩹','Mending heart','mending_heart','symbols','исцеление heart'),
+  I('❣️','Heart exclamation','heart_exclamation','symbols','сердце heart'),
+  I('💕','Two hearts','two_hearts','symbols','два сердца hearts'),
+  I('💞','Revolving hearts','revolving_hearts','symbols','сердца hearts'),
+  I('💓','Beating heart','beating_heart','symbols','бьющееся сердце heart'),
+  I('💗','Growing heart','growing_heart','symbols','растущее сердце heart'),
+  I('💖','Sparkling heart','sparkling_heart','symbols','сверкающее сердце heart'),
+  I('💘','Heart with arrow','heart_with_arrow','symbols','сердце стрела heart arrow'),
+  I('💝','Heart with ribbon','heart_with_ribbon','symbols','сердце бант heart ribbon'),
+  I('💟','Heart decoration','heart_decoration','symbols','сердечко heart'),
+  I('💯','Hundred points','hundred_points','symbols','100 hundred perfect'),
+  I('💢','Anger symbol','anger_symbol','symbols','гнев anger'),
+  I('💥','Collision','collision','symbols','взрыв boom'),
+  I('💫','Dizzy','dizzy','symbols','головокружение dizzy star'),
+  I('💦','Sweat droplets','sweat_droplets','symbols','капли drops'),
+  I('💨','Dashing away','dashing_away','symbols','ветер dash'),
+  I('🕳️','Hole','hole','symbols','дыра hole'),
+  I('💣','Bomb','bomb','symbols','бомба bomb'),
+  I('💬','Speech balloon','speech_balloon','symbols','речь speech'),
+  I('👁️‍🗨️','Eye in speech bubble','eye_in_speech_bubble','symbols','свидетель eye'),
+  I('🗨️','Left speech bubble','left_speech_bubble','symbols','речь speech'),
+  I('🗯️','Right anger bubble','right_anger_bubble','symbols','гнев anger'),
+  I('💭','Thought balloon','thought_balloon','symbols','мысль thought'),
+  I('💤','Zzz','zzz','symbols','сон zzz'),
+
+  // =================== FLAGS ===================
+  I('🏁','Chequered flag','chequered_flag','flags','финиш chequered'),
+  I('🚩','Triangular flag','triangular_flag','flags','флажок triangular'),
+  I('🎌','Crossed flags','crossed_flags','flags','флаги crossed'),
+  I('🏴','Black flag','black_flag','flags','чёрный флаг black'),
+  I('🏳️','White flag','white_flag','flags','белый флаг white'),
+  I('🏳️‍🌈','Rainbow flag','rainbow_flag','flags','радуга rainbow pride'),
+  I('🏳️‍⚧️','Transgender flag','transgender_flag','flags','транс transgender'),
+  I('🏴‍☠️','Pirate flag','pirate_flag','flags','пиратский pirate'),
+].filter(i => i.e && i.d && i.s);
+
+// Build URL for Fluent Emoji Flat SVG via jsDelivr CDN.
+window.iconSvgUrl = function (icon) {
+  if (!icon || !icon.d || !icon.s) return null;
+  return `https://cdn.jsdelivr.net/gh/microsoft/fluentui-emoji@main/assets/${encodeURIComponent(icon.d)}/Flat/${icon.s}_flat.svg`;
+};
+
+window.iconByEmoji = function (e) {
+  return window.ICONS.find(i => i.e === e);
+};
+</script>
+<script type="text/babel" data-presets="react">
+// DesignCanvas.jsx — Figma-ish design canvas wrapper
+// Warm gray grid bg + Sections + Artboards + PostIt notes.
+// Artboards are reorderable (grip-drag), labels/titles are inline-editable,
+// and any artboard can be opened in a fullscreen focus overlay (←/→/Esc).
+// State persists to a .design-canvas.state.json sidecar via the host
+// bridge. No assets, no deps.
+//
+// Usage:
+//   <DesignCanvas>
+//     <DCSection id="onboarding" title="Onboarding" subtitle="First-run variants">
+//       <DCArtboard id="a" label="A · Dusk" width={260} height={480}>…</DCArtboard>
+//       <DCArtboard id="b" label="B · Minimal" width={260} height={480}>…</DCArtboard>
+//     </DCSection>
+//   </DesignCanvas>
+
+const DC = {
+  bg: '#f0eee9',
+  grid: 'rgba(0,0,0,0.06)',
+  label: 'rgba(60,50,40,0.7)',
+  title: 'rgba(40,30,20,0.85)',
+  subtitle: 'rgba(60,50,40,0.6)',
+  postitBg: '#fef4a8',
+  postitText: '#5a4a2a',
+  font: '-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif',
+};
+
+// One-time CSS injection (classes are dc-prefixed so they don't collide with
+// the hosted design's own styles).
+if (typeof document !== 'undefined' && !document.getElementById('dc-styles')) {
+  const s = document.createElement('style');
+  s.id = 'dc-styles';
+  s.textContent = [
+    '.dc-editable{cursor:text;outline:none;white-space:nowrap;border-radius:3px;padding:0 2px;margin:0 -2px}',
+    '.dc-editable:focus{background:#fff;box-shadow:0 0 0 1.5px #c96442}',
+    '[data-dc-slot]{transition:transform .18s cubic-bezier(.2,.7,.3,1)}',
+    '[data-dc-slot].dc-dragging{transition:none;z-index:10;pointer-events:none}',
+    '[data-dc-slot].dc-dragging .dc-card{box-shadow:0 12px 40px rgba(0,0,0,.25),0 0 0 2px #c96442;transform:scale(1.02)}',
+    '.dc-card{transition:box-shadow .15s,transform .15s}',
+    '.dc-card *{scrollbar-width:none}',
+    '.dc-card *::-webkit-scrollbar{display:none}',
+    '.dc-labelrow{display:flex;align-items:center;gap:4px;height:24px}',
+    '.dc-grip{cursor:grab;display:flex;align-items:center;padding:5px 4px;border-radius:4px;transition:background .12s}',
+    '.dc-grip:hover{background:rgba(0,0,0,.08)}',
+    '.dc-grip:active{cursor:grabbing}',
+    '.dc-labeltext{cursor:pointer;border-radius:4px;padding:3px 6px;display:flex;align-items:center;transition:background .12s}',
+    '.dc-labeltext:hover{background:rgba(0,0,0,.05)}',
+    '.dc-expand{position:absolute;bottom:100%;right:0;margin-bottom:5px;z-index:2;opacity:0;transition:opacity .12s,background .12s;',
+    '  width:22px;height:22px;border-radius:5px;border:none;cursor:pointer;padding:0;',
+    '  background:transparent;color:rgba(60,50,40,.7);display:flex;align-items:center;justify-content:center}',
+    '.dc-expand:hover{background:rgba(0,0,0,.06);color:#2a251f}',
+    '[data-dc-slot]:hover .dc-expand{opacity:1}',
+  ].join('\n');
+  document.head.appendChild(s);
+}
+
+const DCCtx = React.createContext(null);
+
+// ─────────────────────────────────────────────────────────────
+// DesignCanvas — stateful wrapper around the pan/zoom viewport.
+// Owns runtime state (per-section order, renamed titles/labels, focused
+// artboard). Order/titles/labels persist to a .design-canvas.state.json
+// sidecar next to the HTML. Reads go via plain fetch() so the saved
+// arrangement is visible anywhere the HTML + sidecar are served together
+// (omelette preview, direct link, downloaded zip). Writes go through the
+// host's window.omelette bridge — editing requires the omelette runtime.
+// Focus is ephemeral.
+// ─────────────────────────────────────────────────────────────
+const DC_STATE_FILE = '.design-canvas.state.json';
+
+function DesignCanvas({ children, minScale, maxScale, style }) {
+  const [state, setState] = React.useState({ sections: {}, focus: null });
+  // Hold rendering until the sidecar read settles so the saved order/titles
+  // appear on first paint (no source-order flash). didRead gates writes until
+  // the read settles so the empty initial state can't clobber a slow read;
+  // skipNextWrite suppresses the one echo-write that would otherwise follow
+  // hydration.
+  const [ready, setReady] = React.useState(false);
+  const didRead = React.useRef(false);
+  const skipNextWrite = React.useRef(false);
+
+  React.useEffect(() => {
+    let off = false;
+    fetch('./' + DC_STATE_FILE)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((saved) => {
+        if (off || !saved || !saved.sections) return;
+        skipNextWrite.current = true;
+        setState((s) => ({ ...s, sections: saved.sections }));
+      })
+      .catch(() => {})
+      .finally(() => { didRead.current = true; if (!off) setReady(true); });
+    const t = setTimeout(() => { if (!off) setReady(true); }, 150);
+    return () => { off = true; clearTimeout(t); };
+  }, []);
+
+  React.useEffect(() => {
+    if (!didRead.current) return;
+    if (skipNextWrite.current) { skipNextWrite.current = false; return; }
+    const t = setTimeout(() => {
+      window.omelette?.writeFile(DC_STATE_FILE, JSON.stringify({ sections: state.sections })).catch(() => {});
+    }, 250);
+    return () => clearTimeout(t);
+  }, [state.sections]);
+
+  // Build registries synchronously from children so FocusOverlay can read
+  // them in the same render. Only direct DCSection > DCArtboard children are
+  // walked — wrapping them in other elements opts out of focus/reorder.
+  const registry = {};     // slotId -> { sectionId, artboard }
+  const sectionMeta = {};  // sectionId -> { title, subtitle, slotIds[] }
+  const sectionOrder = [];
+  React.Children.forEach(children, (sec) => {
+    if (!sec || sec.type !== DCSection) return;
+    const sid = sec.props.id ?? sec.props.title;
+    if (!sid) return;
+    sectionOrder.push(sid);
+    const persisted = state.sections[sid] || {};
+    const srcIds = [];
+    React.Children.forEach(sec.props.children, (ab) => {
+      if (!ab || ab.type !== DCArtboard) return;
+      const aid = ab.props.id ?? ab.props.label;
+      if (!aid) return;
+      registry[`${sid}/${aid}`] = { sectionId: sid, artboard: ab };
+      srcIds.push(aid);
+    });
+    const kept = (persisted.order || []).filter((k) => srcIds.includes(k));
+    sectionMeta[sid] = {
+      title: persisted.title ?? sec.props.title,
+      subtitle: sec.props.subtitle,
+      slotIds: [...kept, ...srcIds.filter((k) => !kept.includes(k))],
+    };
+  });
+
+  const api = React.useMemo(() => ({
+    state,
+    section: (id) => state.sections[id] || {},
+    patchSection: (id, p) => setState((s) => ({
+      ...s,
+      sections: { ...s.sections, [id]: { ...s.sections[id], ...(typeof p === 'function' ? p(s.sections[id] || {}) : p) } },
+    })),
+    setFocus: (slotId) => setState((s) => ({ ...s, focus: slotId })),
+  }), [state]);
+
+  // Esc exits focus; any outside pointerdown commits an in-progress rename.
+  React.useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') api.setFocus(null); };
+    const onPd = (e) => {
+      const ae = document.activeElement;
+      if (ae && ae.isContentEditable && !ae.contains(e.target)) ae.blur();
+    };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('pointerdown', onPd, true);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('pointerdown', onPd, true);
+    };
+  }, [api]);
+
+  return (
+    <DCCtx.Provider value={api}>
+      <DCViewport minScale={minScale} maxScale={maxScale} style={style}>{ready && children}</DCViewport>
+      {state.focus && registry[state.focus] && (
+        <DCFocusOverlay entry={registry[state.focus]} sectionMeta={sectionMeta} sectionOrder={sectionOrder} />
+      )}
+    </DCCtx.Provider>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// DCViewport — transform-based pan/zoom (internal)
+//
+// Input mapping (Figma-style):
+//   • trackpad pinch  → zoom   (ctrlKey wheel; Safari gesture* events)
+//   • trackpad scroll → pan    (two-finger)
+//   • mouse wheel     → zoom   (notched; distinguished from trackpad scroll)
+//   • middle-drag / primary-drag-on-bg → pan
+//
+// Transform state lives in a ref and is written straight to the DOM
+// (translate3d + will-change) so wheel ticks don't go through React —
+// keeps pans at 60fps on dense canvases.
+// ─────────────────────────────────────────────────────────────
+function DCViewport({ children, minScale = 0.1, maxScale = 8, style = {} }) {
+  const vpRef = React.useRef(null);
+  const worldRef = React.useRef(null);
+  const tf = React.useRef({ x: 0, y: 0, scale: 1 });
+
+  const apply = React.useCallback(() => {
+    const { x, y, scale } = tf.current;
+    const el = worldRef.current;
+    if (el) el.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale})`;
+  }, []);
+
+  React.useEffect(() => {
+    const vp = vpRef.current;
+    if (!vp) return;
+
+    const zoomAt = (cx, cy, factor) => {
+      const r = vp.getBoundingClientRect();
+      const px = cx - r.left, py = cy - r.top;
+      const t = tf.current;
+      const next = Math.min(maxScale, Math.max(minScale, t.scale * factor));
+      const k = next / t.scale;
+      // keep the world point under the cursor fixed
+      t.x = px - (px - t.x) * k;
+      t.y = py - (py - t.y) * k;
+      t.scale = next;
+      apply();
+    };
+
+    // Mouse-wheel vs trackpad-scroll heuristic. A physical wheel sends
+    // line-mode deltas (Firefox) or large integer pixel deltas with no X
+    // component (Chrome/Safari, typically multiples of 100/120). Trackpad
+    // two-finger scroll sends small/fractional pixel deltas, often with
+    // non-zero deltaX. ctrlKey is set by the browser for trackpad pinch.
+    const isMouseWheel = (e) =>
+      e.deltaMode !== 0 ||
+      (e.deltaX === 0 && Number.isInteger(e.deltaY) && Math.abs(e.deltaY) >= 40);
+
+    const onWheel = (e) => {
+      e.preventDefault();
+      if (isGesturing) return; // Safari: gesture* owns the pinch — discard concurrent wheels
+      if (e.ctrlKey) {
+        // trackpad pinch (or explicit ctrl+wheel)
+        zoomAt(e.clientX, e.clientY, Math.exp(-e.deltaY * 0.01));
+      } else if (isMouseWheel(e)) {
+        // notched mouse wheel — fixed-ratio step per click
+        zoomAt(e.clientX, e.clientY, Math.exp(-Math.sign(e.deltaY) * 0.18));
+      } else {
+        // trackpad two-finger scroll — pan
+        tf.current.x -= e.deltaX;
+        tf.current.y -= e.deltaY;
+        apply();
+      }
+    };
+
+    // Safari sends native gesture* events for trackpad pinch with a smooth
+    // e.scale; preferring these over the ctrl+wheel fallback gives a much
+    // better feel there. No-ops on other browsers. Safari also fires
+    // ctrlKey wheel events during the same pinch — isGesturing makes
+    // onWheel drop those entirely so they neither zoom nor pan.
+    let gsBase = 1;
+    let isGesturing = false;
+    const onGestureStart = (e) => { e.preventDefault(); isGesturing = true; gsBase = tf.current.scale; };
+    const onGestureChange = (e) => {
+      e.preventDefault();
+      zoomAt(e.clientX, e.clientY, (gsBase * e.scale) / tf.current.scale);
+    };
+    const onGestureEnd = (e) => { e.preventDefault(); isGesturing = false; };
+
+    // Drag-pan: middle button anywhere, or primary button on canvas
+    // background (anything that isn't an artboard or an inline editor).
+    let drag = null;
+    const onPointerDown = (e) => {
+      const onBg = !e.target.closest('[data-dc-slot], .dc-editable');
+      if (!(e.button === 1 || (e.button === 0 && onBg))) return;
+      e.preventDefault();
+      vp.setPointerCapture(e.pointerId);
+      drag = { id: e.pointerId, lx: e.clientX, ly: e.clientY };
+      vp.style.cursor = 'grabbing';
+    };
+    const onPointerMove = (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      tf.current.x += e.clientX - drag.lx;
+      tf.current.y += e.clientY - drag.ly;
+      drag.lx = e.clientX; drag.ly = e.clientY;
+      apply();
+    };
+    const onPointerUp = (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      vp.releasePointerCapture(e.pointerId);
+      drag = null;
+      vp.style.cursor = '';
+    };
+
+    vp.addEventListener('wheel', onWheel, { passive: false });
+    vp.addEventListener('gesturestart', onGestureStart, { passive: false });
+    vp.addEventListener('gesturechange', onGestureChange, { passive: false });
+    vp.addEventListener('gestureend', onGestureEnd, { passive: false });
+    vp.addEventListener('pointerdown', onPointerDown);
+    vp.addEventListener('pointermove', onPointerMove);
+    vp.addEventListener('pointerup', onPointerUp);
+    vp.addEventListener('pointercancel', onPointerUp);
+    return () => {
+      vp.removeEventListener('wheel', onWheel);
+      vp.removeEventListener('gesturestart', onGestureStart);
+      vp.removeEventListener('gesturechange', onGestureChange);
+      vp.removeEventListener('gestureend', onGestureEnd);
+      vp.removeEventListener('pointerdown', onPointerDown);
+      vp.removeEventListener('pointermove', onPointerMove);
+      vp.removeEventListener('pointerup', onPointerUp);
+      vp.removeEventListener('pointercancel', onPointerUp);
+    };
+  }, [apply, minScale, maxScale]);
+
+  const gridSvg = `url("data:image/svg+xml,%3Csvg width='120' height='120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M120 0H0v120' fill='none' stroke='${encodeURIComponent(DC.grid)}' stroke-width='1'/%3E%3C/svg%3E")`;
+  return (
+    <div
+      ref={vpRef}
+      className="design-canvas"
+      style={{
+        height: '100vh', width: '100vw',
+        background: DC.bg,
+        overflow: 'hidden',
+        overscrollBehavior: 'none',
+        touchAction: 'none',
+        position: 'relative',
+        fontFamily: DC.font,
+        boxSizing: 'border-box',
+        ...style,
+      }}
+    >
+      <div
+        ref={worldRef}
+        style={{
+          position: 'absolute', top: 0, left: 0,
+          transformOrigin: '0 0',
+          willChange: 'transform',
+          width: 'max-content', minWidth: '100%',
+          minHeight: '100%',
+          padding: '60px 0 80px',
+        }}
+      >
+        <div style={{ position: 'absolute', inset: -6000, backgroundImage: gridSvg, backgroundSize: '120px 120px', pointerEvents: 'none', zIndex: -1 }} />
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// DCSection — editable title + h-row of artboards in persisted order
+// ─────────────────────────────────────────────────────────────
+function DCSection({ id, title, subtitle, children, gap = 48 }) {
+  const ctx = React.useContext(DCCtx);
+  const sid = id ?? title;
+  const all = React.Children.toArray(children);
+  const artboards = all.filter((c) => c && c.type === DCArtboard);
+  const rest = all.filter((c) => !(c && c.type === DCArtboard));
+  const srcOrder = artboards.map((a) => a.props.id ?? a.props.label);
+  const sec = (ctx && sid && ctx.section(sid)) || {};
+
+  const order = React.useMemo(() => {
+    const kept = (sec.order || []).filter((k) => srcOrder.includes(k));
+    return [...kept, ...srcOrder.filter((k) => !kept.includes(k))];
+  }, [sec.order, srcOrder.join('|')]);
+
+  const byId = Object.fromEntries(artboards.map((a) => [a.props.id ?? a.props.label, a]));
+
+  return (
+    <div data-dc-section={sid} style={{ marginBottom: 80, position: 'relative' }}>
+      <div style={{ padding: '0 60px 56px' }}>
+        <DCEditable tag="div" value={sec.title ?? title}
+          onChange={(v) => ctx && sid && ctx.patchSection(sid, { title: v })}
+          style={{ fontSize: 28, fontWeight: 600, color: DC.title, letterSpacing: -0.4, marginBottom: 6, display: 'inline-block' }} />
+        {subtitle && <div style={{ fontSize: 16, color: DC.subtitle }}>{subtitle}</div>}
+      </div>
+      <div style={{ display: 'flex', gap, padding: '0 60px', alignItems: 'flex-start', width: 'max-content' }}>
+        {order.map((k) => (
+          <DCArtboardFrame key={k} sectionId={sid} artboard={byId[k]} order={order}
+            label={(sec.labels || {})[k] ?? byId[k].props.label}
+            onRename={(v) => ctx && ctx.patchSection(sid, (x) => ({ labels: { ...x.labels, [k]: v } }))}
+            onReorder={(next) => ctx && ctx.patchSection(sid, { order: next })}
+            onFocus={() => ctx && ctx.setFocus(`${sid}/${k}`)} />
+        ))}
+      </div>
+      {rest}
+    </div>
+  );
+}
+
+// DCArtboard — marker; rendered by DCArtboardFrame via DCSection.
+function DCArtboard() { return null; }
+
+function DCArtboardFrame({ sectionId, artboard, label, order, onRename, onReorder, onFocus }) {
+  const { id: rawId, label: rawLabel, width = 260, height = 480, children, style = {} } = artboard.props;
+  const id = rawId ?? rawLabel;
+  const ref = React.useRef(null);
+
+  // Live drag-reorder: dragged card sticks to cursor; siblings slide into
+  // their would-be slots in real time via transforms. DOM order only
+  // changes on drop.
+  const onGripDown = (e) => {
+    e.preventDefault(); e.stopPropagation();
+    const me = ref.current;
+    // translateX is applied in local (pre-scale) space but pointer deltas and
+    // getBoundingClientRect().left are screen-space — divide by the viewport's
+    // current scale so the dragged card tracks the cursor at any zoom level.
+    const scale = me.getBoundingClientRect().width / me.offsetWidth || 1;
+    const peers = Array.from(document.querySelectorAll(`[data-dc-section="${sectionId}"] [data-dc-slot]`));
+    const homes = peers.map((el) => ({ el, id: el.dataset.dcSlot, x: el.getBoundingClientRect().left }));
+    const slotXs = homes.map((h) => h.x);
+    const startIdx = order.indexOf(id);
+    const startX = e.clientX;
+    let liveOrder = order.slice();
+    me.classList.add('dc-dragging');
+
+    const layout = () => {
+      for (const h of homes) {
+        if (h.id === id) continue;
+        const slot = liveOrder.indexOf(h.id);
+        h.el.style.transform = `translateX(${(slotXs[slot] - h.x) / scale}px)`;
+      }
+    };
+
+    const move = (ev) => {
+      const dx = ev.clientX - startX;
+      me.style.transform = `translateX(${dx / scale}px)`;
+      const cur = homes[startIdx].x + dx;
+      let nearest = 0, best = Infinity;
+      for (let i = 0; i < slotXs.length; i++) {
+        const d = Math.abs(slotXs[i] - cur);
+        if (d < best) { best = d; nearest = i; }
+      }
+      if (liveOrder.indexOf(id) !== nearest) {
+        liveOrder = order.filter((k) => k !== id);
+        liveOrder.splice(nearest, 0, id);
+        layout();
+      }
+    };
+
+    const up = () => {
+      document.removeEventListener('pointermove', move);
+      document.removeEventListener('pointerup', up);
+      const finalSlot = liveOrder.indexOf(id);
+      me.classList.remove('dc-dragging');
+      me.style.transform = `translateX(${(slotXs[finalSlot] - homes[startIdx].x) / scale}px)`;
+      // After the settle transition, kill transitions + clear transforms +
+      // commit the reorder in the same frame so there's no visual snap-back.
+      setTimeout(() => {
+        for (const h of homes) { h.el.style.transition = 'none'; h.el.style.transform = ''; }
+        if (liveOrder.join('|') !== order.join('|')) onReorder(liveOrder);
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          for (const h of homes) h.el.style.transition = '';
+        }));
+      }, 180);
+    };
+    document.addEventListener('pointermove', move);
+    document.addEventListener('pointerup', up);
+  };
+
+  return (
+    <div ref={ref} data-dc-slot={id} style={{ position: 'relative', flexShrink: 0 }}>
+      <div className="dc-labelrow" style={{ position: 'absolute', bottom: '100%', left: -4, marginBottom: 4, color: DC.label }}>
+        <div className="dc-grip" onPointerDown={onGripDown} title="Drag to reorder">
+          <svg width="9" height="13" viewBox="0 0 9 13" fill="currentColor"><circle cx="2" cy="2" r="1.1"/><circle cx="7" cy="2" r="1.1"/><circle cx="2" cy="6.5" r="1.1"/><circle cx="7" cy="6.5" r="1.1"/><circle cx="2" cy="11" r="1.1"/><circle cx="7" cy="11" r="1.1"/></svg>
+        </div>
+        <div className="dc-labeltext" onClick={onFocus} title="Click to focus">
+          <DCEditable value={label} onChange={onRename} onClick={(e) => e.stopPropagation()}
+            style={{ fontSize: 15, fontWeight: 500, color: DC.label, lineHeight: 1 }} />
+        </div>
+      </div>
+      <button className="dc-expand" onClick={onFocus} onPointerDown={(e) => e.stopPropagation()} title="Focus">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M7 1h4v4M5 11H1V7M11 1L7.5 4.5M1 11l3.5-3.5"/></svg>
+      </button>
+      <div className="dc-card"
+        style={{ borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.06)', overflow: 'hidden', width, height, background: '#fff', ...style }}>
+        {children || <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#bbb', fontSize: 13, fontFamily: DC.font }}>{id}</div>}
+      </div>
+    </div>
+  );
+}
+
+// Inline rename — commits on blur or Enter.
+function DCEditable({ value, onChange, style, tag = 'span', onClick }) {
+  const T = tag;
+  return (
+    <T className="dc-editable" contentEditable suppressContentEditableWarning
+      onClick={onClick}
+      onPointerDown={(e) => e.stopPropagation()}
+      onBlur={(e) => onChange && onChange(e.currentTarget.textContent)}
+      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); } }}
+      style={style}>{value}</T>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Focus mode — overlay one artboard; ←/→ within section, ↑/↓ across
+// sections, Esc or backdrop click to exit.
+// ─────────────────────────────────────────────────────────────
+function DCFocusOverlay({ entry, sectionMeta, sectionOrder }) {
+  const ctx = React.useContext(DCCtx);
+  const { sectionId, artboard } = entry;
+  const sec = ctx.section(sectionId);
+  const meta = sectionMeta[sectionId];
+  const peers = meta.slotIds;
+  const aid = artboard.props.id ?? artboard.props.label;
+  const idx = peers.indexOf(aid);
+  const secIdx = sectionOrder.indexOf(sectionId);
+
+  const go = (d) => { const n = peers[(idx + d + peers.length) % peers.length]; if (n) ctx.setFocus(`${sectionId}/${n}`); };
+  const goSection = (d) => {
+    const ns = sectionOrder[(secIdx + d + sectionOrder.length) % sectionOrder.length];
+    const first = sectionMeta[ns] && sectionMeta[ns].slotIds[0];
+    if (first) ctx.setFocus(`${ns}/${first}`);
+  };
+
+  React.useEffect(() => {
+    const k = (e) => {
+      if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); go(1); }
+      if (e.key === 'ArrowUp') { e.preventDefault(); goSection(-1); }
+      if (e.key === 'ArrowDown') { e.preventDefault(); goSection(1); }
+    };
+    document.addEventListener('keydown', k);
+    return () => document.removeEventListener('keydown', k);
+  });
+
+  const { width = 260, height = 480, children } = artboard.props;
+  const [vp, setVp] = React.useState({ w: window.innerWidth, h: window.innerHeight });
+  React.useEffect(() => { const r = () => setVp({ w: window.innerWidth, h: window.innerHeight }); window.addEventListener('resize', r); return () => window.removeEventListener('resize', r); }, []);
+  const scale = Math.max(0.1, Math.min((vp.w - 200) / width, (vp.h - 260) / height, 2));
+
+  const [ddOpen, setDd] = React.useState(false);
+  const Arrow = ({ dir, onClick }) => (
+    <button onClick={(e) => { e.stopPropagation(); onClick(); }}
+      style={{ position: 'absolute', top: '50%', [dir]: 28, transform: 'translateY(-50%)',
+        border: 'none', background: 'rgba(255,255,255,.08)', color: 'rgba(255,255,255,.9)',
+        width: 44, height: 44, borderRadius: 22, fontSize: 18, cursor: 'pointer',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background .15s' }}
+      onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,.18)')}
+      onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,.08)')}>
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <path d={dir === 'left' ? 'M11 3L5 9l6 6' : 'M7 3l6 6-6 6'} /></svg>
+    </button>
+  );
+
+  // Portal to body so position:fixed is the real viewport regardless of any
+  // transform on DesignCanvas's ancestors (including the canvas zoom itself).
+  return ReactDOM.createPortal(
+    <div onClick={() => ctx.setFocus(null)}
+      onWheel={(e) => e.preventDefault()}
+      style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(24,20,16,.6)', backdropFilter: 'blur(14px)',
+        fontFamily: DC.font, color: '#fff' }}>
+
+      {/* top bar: section dropdown (left) · close (right) */}
+      <div onClick={(e) => e.stopPropagation()}
+        style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 72, display: 'flex', alignItems: 'flex-start', padding: '16px 20px 0', gap: 16 }}>
+        <div style={{ position: 'relative' }}>
+          <button onClick={() => setDd((o) => !o)}
+            style={{ border: 'none', background: 'transparent', color: '#fff', cursor: 'pointer', padding: '6px 8px',
+              borderRadius: 6, textAlign: 'left', fontFamily: 'inherit' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 18, fontWeight: 600, letterSpacing: -0.3 }}>{meta.title}</span>
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" style={{ opacity: .7 }}><path d="M2 4l3.5 3.5L9 4"/></svg>
+            </span>
+            {meta.subtitle && <span style={{ display: 'block', fontSize: 13, opacity: .6, fontWeight: 400, marginTop: 2 }}>{meta.subtitle}</span>}
+          </button>
+          {ddOpen && (
+            <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 4, background: '#2a251f', borderRadius: 8,
+              boxShadow: '0 8px 32px rgba(0,0,0,.4)', padding: 4, minWidth: 200, zIndex: 10 }}>
+              {sectionOrder.map((sid) => (
+                <button key={sid} onClick={() => { setDd(false); const f = sectionMeta[sid].slotIds[0]; if (f) ctx.setFocus(`${sid}/${f}`); }}
+                  style={{ display: 'block', width: '100%', textAlign: 'left', border: 'none', cursor: 'pointer',
+                    background: sid === sectionId ? 'rgba(255,255,255,.1)' : 'transparent', color: '#fff',
+                    padding: '8px 12px', borderRadius: 5, fontSize: 14, fontWeight: sid === sectionId ? 600 : 400, fontFamily: 'inherit' }}>
+                  {sectionMeta[sid].title}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        <div style={{ flex: 1 }} />
+        <button onClick={() => ctx.setFocus(null)}
+          onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,.12)')}
+          onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+          style={{ border: 'none', background: 'transparent', color: 'rgba(255,255,255,.7)', width: 32, height: 32,
+            borderRadius: 16, fontSize: 20, cursor: 'pointer', lineHeight: 1, transition: 'background .12s' }}>×</button>
+      </div>
+
+      {/* card centered, label + index below — only the card itself stops
+          propagation so any backdrop click (including the margins around
+          the card) exits focus */}
+      <div
+        style={{ position: 'absolute', top: 64, bottom: 56, left: 100, right: 100, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+        <div onClick={(e) => e.stopPropagation()} style={{ width: width * scale, height: height * scale, position: 'relative' }}>
+          <div style={{ width, height, transform: `scale(${scale})`, transformOrigin: 'top left', background: '#fff', borderRadius: 2, overflow: 'hidden',
+            boxShadow: '0 20px 80px rgba(0,0,0,.4)' }}>
+            {children || <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#bbb' }}>{aid}</div>}
+          </div>
+        </div>
+        <div onClick={(e) => e.stopPropagation()} style={{ fontSize: 14, fontWeight: 500, opacity: .85, textAlign: 'center' }}>
+          {(sec.labels || {})[aid] ?? artboard.props.label}
+          <span style={{ opacity: .5, marginLeft: 10, fontVariantNumeric: 'tabular-nums' }}>{idx + 1} / {peers.length}</span>
+        </div>
+      </div>
+
+      <Arrow dir="left" onClick={() => go(-1)} />
+      <Arrow dir="right" onClick={() => go(1)} />
+
+      {/* dots */}
+      <div onClick={(e) => e.stopPropagation()}
+        style={{ position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 8 }}>
+        {peers.map((p, i) => (
+          <button key={p} onClick={() => ctx.setFocus(`${sectionId}/${p}`)}
+            style={{ border: 'none', padding: 0, cursor: 'pointer', width: 6, height: 6, borderRadius: 3,
+              background: i === idx ? '#fff' : 'rgba(255,255,255,.3)' }} />
+        ))}
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Post-it — absolute-positioned sticky note
+// ─────────────────────────────────────────────────────────────
+function DCPostIt({ children, top, left, right, bottom, rotate = -2, width = 180 }) {
+  return (
+    <div style={{
+      position: 'absolute', top, left, right, bottom, width,
+      background: DC.postitBg, padding: '14px 16px',
+      fontFamily: '"Comic Sans MS", "Marker Felt", "Segoe Print", cursive',
+      fontSize: 14, lineHeight: 1.4, color: DC.postitText,
+      boxShadow: '0 2px 8px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08)',
+      transform: `rotate(${rotate}deg)`,
+      zIndex: 5,
+    }}>{children}</div>
+  );
+}
+
+Object.assign(window, { DesignCanvas, DCSection, DCArtboard, DCPostIt });
+
+</script>
+<script type="text/babel" data-presets="react">// FluentIcon — renders a Microsoft Fluent Emoji Flat SVG via jsDelivr CDN.
+// Graceful fallback to the unicode emoji glyph if the SVG 404s.
+
+function FluentIcon({ icon, size = 24, className = '', title }) {
+  const [err, setErr] = React.useState(false);
+  if (!icon) return null;
+  const url = window.iconSvgUrl(icon);
+  if (err || !url) {
+    return (
+      <span
+        className={className + ' fi-fallback'}
+        style={{ fontSize: size * 0.9, lineHeight: 1, display: 'inline-block' }}
+        title={title || icon.s}
+      >{icon.e}</span>
+    );
+  }
+  return (
+    <img
+      src={url}
+      alt={icon.e}
+      title={title || icon.s}
+      width={size}
+      height={size}
+      loading="lazy"
+      draggable={false}
+      className={className + ' fi-svg'}
+      onError={() => setErr(true)}
+      style={{ display: 'block', width: size, height: size, userSelect: 'none' }}
+    />
+  );
+}
+
+// Render by emoji character (lookup + FluentIcon).
+function FluentIconByEmoji({ emoji, size = 24, className = '', title }) {
+  const icon = window.iconByEmoji(emoji);
+  if (!icon) {
+    return <span className={className} style={{ fontSize: size * 0.9 }}>{emoji}</span>;
+  }
+  return <FluentIcon icon={icon} size={size} className={className} title={title} />;
+}
+
+window.FluentIcon = FluentIcon;
+window.FluentIconByEmoji = FluentIconByEmoji;
+</script>
+<script type="text/babel" data-presets="react">// The main tags modal — reusable shell. Picker variant is passed in as prop.
+
+// using React.* directly to avoid name collisions when inlined
+
+function Toggle({ on, onChange }) {
+  return (
+    <button
+      className={`rp-toggle ${on ? 'on' : 'off'}`}
+      onClick={() => onChange(!on)}
+      aria-label={on ? 'Выключить' : 'Включить'}
+    >
+      <span className="rp-toggle-thumb" />
+    </button>
+  );
+}
+
+function DragHandle() {
+  return (
+    <div className="rp-drag" aria-hidden>
+      <span></span><span></span>
+      <span></span><span></span>
+      <span></span><span></span>
+    </div>
+  );
+}
+
+function TrashIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path d="M9 3h6M4 6h16M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14M10 11v6M14 11v6"
+        stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
+function HelpIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 20 20">
+      <circle cx="10" cy="10" r="9" fill="none" stroke="#D63384" strokeWidth="1.4"/>
+      <text x="10" y="14" textAnchor="middle" fontSize="11" fontWeight="600" fill="#D63384">?</text>
+    </svg>
+  );
+}
+
+function PlusCircle() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="11" fill="#2DB856"/>
+      <path d="M12 7v10M7 12h10" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
+function TagRow({ tag, onToggle, onRename, onDelete, onIconClick, isNew, onCommit }) {
+  const inputRef = React.useRef(null);
+  React.useEffect(() => {
+    if (isNew && inputRef.current) inputRef.current.focus();
+  }, [isNew]);
+
+  return (
+    <div className="rp-row">
+      <DragHandle />
+      <div className="rp-input">
+        <button
+          className={`rp-icon-btn ${!tag.icon ? 'empty' : ''} ${tag.custom ? 'editable' : ''}`}
+          onClick={() => tag.custom && onIconClick(tag)}
+          disabled={!tag.custom}
+          title={tag.custom ? 'Сменить иконку' : 'Системная иконка'}
+        >
+          {tag.icon ? (
+            <FluentIconByEmoji emoji={tag.icon} size={24} className="rp-emoji" />
+          ) : (
+            <span className="rp-icon-placeholder">?</span>
+          )}
+        </button>
+        <input
+          ref={inputRef}
+          value={tag.name}
+          onChange={(e) => onRename(tag.id, e.target.value)}
+          onBlur={() => onCommit && onCommit(tag.id)}
+          onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
+          placeholder="Название метки"
+        />
+      </div>
+      <Toggle on={tag.on} onChange={(v) => onToggle(tag.id, v)} />
+      <span className="rp-toggle-label">{tag.on ? 'ВКЛ' : 'ВЫКЛ'}</span>
+      {tag.custom ? (
+        <button className="rp-trash" onClick={() => onDelete(tag.id)} title="Удалить">
+          <TrashIcon />
+        </button>
+      ) : (
+        <span className="rp-trash-placeholder" />
+      )}
+    </div>
+  );
+}
+
+function CommentRow({ item, onToggle, onRename, onDelete }) {
+  return (
+    <div className="rp-row">
+      <DragHandle />
+      <div className="rp-input simple">
+        <input
+          value={item.text}
+          onChange={(e) => onRename(item.id, e.target.value)}
+        />
+      </div>
+      <Toggle on={item.on} onChange={(v) => onToggle(item.id, v)} />
+      <span className="rp-toggle-label">{item.on ? 'ВКЛ' : 'ВЫКЛ'}</span>
+      <button className="rp-trash" onClick={() => onDelete(item.id)} title="Удалить">
+        <TrashIcon />
+      </button>
+    </div>
+  );
+}
+
+function TagsModal({ variant, pickerComponent: Picker, initialTags, comments, onChangeTags, onChangeComments }) {
+  const [tags, setTags] = React.useState(initialTags);
+  const [cms, setCms] = React.useState(comments);
+  const [pickerTagId, setPickerTagId] = React.useState(null);
+  const [pickerAnchor, setPickerAnchor] = React.useState(null);
+  const [recents, setRecents] = React.useState(['⭐','🎂','💎','🎁','🍷','🔒']);
+
+  React.useEffect(() => { onChangeTags && onChangeTags(tags); }, [tags]);
+  React.useEffect(() => { onChangeComments && onChangeComments(cms); }, [cms]);
+
+  const addTag = () => {
+    const id = 'new-' + Date.now();
+    setTags([...tags, { id, name: '', icon: null, on: true, custom: true, isNew: true }]);
+  };
+
+  const toggle = (id, v) => setTags(tags.map(t => t.id === id ? { ...t, on: v } : t));
+  const rename = (id, name) => setTags(tags.map(t => t.id === id ? { ...t, name } : t));
+  const commit = (id) => setTags(tags.map(t => t.id === id ? { ...t, isNew: false } : t));
+  const del = (id) => setTags(tags.filter(t => t.id !== id));
+
+  const openPicker = (tag, anchor) => {
+    setPickerTagId(tag.id);
+    setPickerAnchor(anchor || null);
+  };
+  const pickIcon = (emoji) => {
+    setTags(tags.map(t => t.id === pickerTagId ? { ...t, icon: emoji } : t));
+    setRecents([emoji, ...recents.filter(r => r !== emoji)].slice(0, 12));
+    setPickerTagId(null);
+  };
+
+  const togC = (id, v) => setCms(cms.map(c => c.id === id ? { ...c, on: v } : c));
+  const renC = (id, text) => setCms(cms.map(c => c.id === id ? { ...c, text } : c));
+  const delC = (id) => setCms(cms.filter(c => c.id !== id));
+  const addComment = () => {
+    const id = 'c-' + Date.now();
+    setCms([...cms, { id, text: '', on: true }]);
+  };
+
+  return (
+    <div className="rp-modal-shell">
+      <div className="rp-modal" onClick={(e) => e.stopPropagation()}>
+        <button className="rp-close"><CloseIcon/></button>
+        <h2 className="rp-title">РЕДАКТИРОВАНИЕ МЕТОК И БЫСТРЫХ КОММЕНТАРИЕВ</h2>
+
+        <div className="rp-section">
+          <div className="rp-section-head">
+            <h3>Метки</h3>
+            <HelpIcon />
+          </div>
+
+          <div className="rp-rows">
+            {tags.map(tag => (
+              <TagRow
+                key={tag.id}
+                tag={tag}
+                onToggle={toggle}
+                onRename={rename}
+                onDelete={del}
+                onCommit={commit}
+                isNew={tag.isNew}
+                onIconClick={(t) => {
+                  const el = document.querySelector(`[data-tag-id="${t.id}"] .rp-icon-btn`);
+                  openPicker(t, el);
+                }}
+              />
+            ))}
+
+            <button className="rp-add-btn" onClick={addTag} type="button">
+              <PlusCircle/>
+              <span>Создать метку</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="rp-section">
+          <div className="rp-section-head">
+            <h3>Быстрые комментарии</h3>
+            <HelpIcon />
+          </div>
+          <div className="rp-rows">
+            {cms.map(c => (
+              <CommentRow key={c.id} item={c} onToggle={togC} onRename={renC} onDelete={delC}/>
+            ))}
+            <button className="rp-add-btn" onClick={addComment} type="button">
+              <PlusCircle/>
+              <span>Добавить комментарий</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Invisible anchor wrapper for tag rows */}
+      <style>{`
+        [data-tag-id] { display: contents; }
+      `}</style>
+
+      {pickerTagId && (
+        <Picker
+          recents={recents}
+          onPick={pickIcon}
+          onClose={() => setPickerTagId(null)}
+          anchor={pickerAnchor}
+          currentTag={tags.find(t => t.id === pickerTagId)}
+        />
+      )}
+    </div>
+  );
+}
+
+window.TagsModal = TagsModal;
+window.HelpIcon = HelpIcon;
+window.PlusCircle = PlusCircle;
+</script>
+<script type="text/babel" data-presets="react">// Variant A — Popover anchored to the tag row's icon button.
+// Compact, fast, doesn't obscure the list.
+
+
+
+function PickerPopover({ recents, onPick, onClose, anchor }) {
+  const [cat, setCat] = React.useState('recent');
+  const [q, setQ] = React.useState('');
+  const ref = React.useRef(null);
+
+  React.useEffect(() => {
+    const onDoc = (e) => { if (ref.current && !ref.current.contains(e.target)) onClose(); };
+    setTimeout(() => document.addEventListener('mousedown', onDoc), 0);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, []);
+
+  const filtered = React.useMemo(() => {
+    if (q.trim()) {
+      const needle = q.toLowerCase().trim();
+      return window.ICONS.filter(i => i.t.toLowerCase().includes(needle) || i.e.includes(needle));
+    }
+    if (cat === 'recent') {
+      return recents.map(e => window.ICONS.find(i => i.e === e)).filter(Boolean);
+    }
+    return window.ICONS.filter(i => i.c === cat);
+  }, [cat, q, recents]);
+
+  // Position near anchor
+  const style = {};
+  if (anchor) {
+    const r = anchor.getBoundingClientRect();
+    const shell = document.querySelector('.rp-modal-shell').getBoundingClientRect();
+    style.position = 'absolute';
+    style.top = (r.bottom - shell.top + 8) + 'px';
+    style.left = Math.max(16, r.left - shell.left - 8) + 'px';
+  }
+
+  return (
+    <div className="picker-pop" ref={ref} style={style}>
+      <div className="pop-head">
+        <input
+          autoFocus
+          className="pop-search"
+          placeholder="Поиск иконки…"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+        />
+        <button
+          type="button"
+          className="pop-close"
+          onClick={onClose}
+          aria-label="Закрыть"
+          title="Закрыть"
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+            <path d="M3 3l8 8M11 3l-8 8" />
+          </svg>
+        </button>
+      </div>
+      {!q.trim() && (
+        <div className="pop-tabs">
+          {window.ICON_CATEGORIES.map(c => (
+            <button
+              key={c.id}
+              className={`pop-tab ${cat === c.id ? 'active' : ''}`}
+              onClick={() => setCat(c.id)}
+              title={c.name}
+            >
+              <span className="pop-tab-glyph">{c.short}</span>
+            </button>
+          ))}
+        </div>
+      )}
+      <div className="pop-grid-wrap">
+        {filtered.length === 0 ? (
+          <div className="pop-empty">Ничего не найдено</div>
+        ) : (
+          <div className="pop-grid">
+            {filtered.map((i, idx) => (
+              <button key={i.e + idx} className="pop-cell" onClick={() => onPick(i.e)} title={i.s}>
+                <FluentIcon icon={i} size={24} />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="pop-foot">
+        <span>{filtered.length} иконок</span>
+        <span className="pop-hint">Fluent Emoji Flat · Microsoft</span>
+      </div>
+    </div>
+  );
+}
+
+window.PickerPopover = PickerPopover;
+</script>
+<script type="text/babel" data-presets="react">// Variant B — Second modal overlay with top tabs.
+// Familiar Notion/Telegram-style picker. Bigger canvas, easier to browse.
+
+
+
+function PickerTabs({ recents, onPick, onClose, currentTag }) {
+  const [cat, setCat] = React.useState('recent');
+  const [q, setQ] = React.useState('');
+  const scrollRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const onKey = (e) => e.key === 'Escape' && onClose();
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, []);
+
+  const sections = React.useMemo(() => {
+    if (q.trim()) {
+      const needle = q.toLowerCase().trim();
+      const list = window.ICONS.filter(i => i.t.toLowerCase().includes(needle));
+      return [{ id: 'search', name: `Результаты поиска (${list.length})`, items: list }];
+    }
+    if (cat === 'recent') {
+      const list = recents.map(e => window.ICONS.find(i => i.e === e)).filter(Boolean);
+      return [{ id: 'recent', name: 'Часто используемые', items: list }];
+    }
+    const found = window.ICON_CATEGORIES.find(c => c.id === cat);
+    return [{ id: cat, name: found.name, items: window.ICONS.filter(i => i.c === cat) }];
+  }, [cat, q, recents]);
+
+  const total = sections.reduce((a, s) => a + s.items.length, 0);
+
+  return (
+    <div className="picker-tabs-backdrop" onClick={onClose}>
+      <div className="picker-tabs" onClick={(e) => e.stopPropagation()}>
+        <div className="tabs-head">
+          <div className="tabs-title">
+            <span>Выбор иконки</span>
+            {currentTag?.name && <span className="tabs-subtitle">· для «{currentTag.name}»</span>}
+          </div>
+          <button className="tabs-close" onClick={onClose}>×</button>
+        </div>
+
+        <div className="tabs-search">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <circle cx="11" cy="11" r="7" stroke="#9BA0AA" strokeWidth="1.8"/>
+            <path d="M20 20l-3.5-3.5" stroke="#9BA0AA" strokeWidth="1.8" strokeLinecap="round"/>
+          </svg>
+          <input
+            autoFocus
+            placeholder="Поиск — «торт», «vip», «рождения»…"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
+          {q && <button className="tabs-clear" onClick={() => setQ('')}>×</button>}
+        </div>
+
+        {!q.trim() && (
+          <div className="tabs-tabs">
+            {window.ICON_CATEGORIES.map(c => (
+              <button
+                key={c.id}
+                className={`tabs-tab ${cat === c.id ? 'active' : ''}`}
+                onClick={() => setCat(c.id)}
+              >
+                <span className="tabs-tab-glyph">{c.short}</span>
+                <span className="tabs-tab-name">{c.name}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        <div className="tabs-scroll" ref={scrollRef}>
+          {sections.map(s => (
+            <div key={s.id} className="tabs-section">
+              <div className="tabs-section-head">{s.name}</div>
+              {s.items.length === 0 ? (
+                <div className="tabs-empty">Ничего не найдено. Попробуйте другой запрос.</div>
+              ) : (
+                <div className="tabs-grid">
+                  {s.items.map((i, idx) => (
+                    <button key={i.e + idx} className="tabs-cell" onClick={() => onPick(i.e)} title={i.s}>
+                      <FluentIcon icon={i} size={30} />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <div className="tabs-foot">
+          <span>Иконок доступно: <b>{window.ICONS.length}</b></span>
+          <span className="tabs-foot-hint">Fluent Emoji Flat · Microsoft · MIT</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+window.PickerTabs = PickerTabs;
+</script>
+<script type="text/babel" data-presets="react">// Variant C — Sidebar layout à la Slack/Figma.
+// Categories pinned on the left; continuous scroll with sticky headers on the right.
+
+
+
+function PickerSidebar({ recents, onPick, onClose, currentTag }) {
+  const [q, setQ] = React.useState('');
+  const [activeCat, setActiveCat] = React.useState('recent');
+  const scrollRef = React.useRef(null);
+  const sectionRefs = React.useRef({});
+
+  const grouped = React.useMemo(() => {
+    const recentItems = recents.map(e => window.ICONS.find(i => i.e === e)).filter(Boolean);
+    const groups = window.ICON_CATEGORIES.map(c => {
+      if (c.id === 'recent') return { ...c, items: recentItems };
+      return { ...c, items: window.ICONS.filter(i => i.c === c.id) };
+    }).filter(g => g.items.length > 0);
+    return groups;
+  }, [recents]);
+
+  const searchResults = React.useMemo(() => {
+    if (!q.trim()) return null;
+    const needle = q.toLowerCase().trim();
+    return window.ICONS.filter(i => i.t.toLowerCase().includes(needle));
+  }, [q]);
+
+  React.useEffect(() => {
+    const onKey = (e) => e.key === 'Escape' && onClose();
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, []);
+
+  const scrollToCat = (id) => {
+    const el = sectionRefs.current[id];
+    if (el && scrollRef.current) {
+      scrollRef.current.scrollTo({ top: el.offsetTop - 8, behavior: 'smooth' });
+      setActiveCat(id);
+    }
+  };
+
+  // Observe scroll to highlight active sidebar entry
+  React.useEffect(() => {
+    const onScroll = () => {
+      const top = scrollRef.current?.scrollTop ?? 0;
+      let best = grouped[0]?.id;
+      grouped.forEach(g => {
+        const el = sectionRefs.current[g.id];
+        if (el && el.offsetTop - 40 <= top) best = g.id;
+      });
+      setActiveCat(best);
+    };
+    const el = scrollRef.current;
+    el?.addEventListener('scroll', onScroll);
+    return () => el?.removeEventListener('scroll', onScroll);
+  }, [grouped]);
+
+  return (
+    <div className="picker-sidebar-backdrop" onClick={onClose}>
+      <div className="picker-sidebar" onClick={(e) => e.stopPropagation()}>
+        <div className="sb-head">
+          <div className="sb-title">
+            Выбор иконки для метки
+            {currentTag?.name && <span> «{currentTag.name}»</span>}
+          </div>
+          <button className="sb-close" onClick={onClose}>×</button>
+        </div>
+
+        <div className="sb-body">
+          <aside className="sb-nav">
+            <div className="sb-search">
+              <input
+                placeholder="Поиск…"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+              />
+            </div>
+            <div className="sb-nav-list">
+              {grouped.map(g => (
+                <button
+                  key={g.id}
+                  className={`sb-nav-item ${activeCat === g.id && !q ? 'active' : ''}`}
+                  onClick={() => scrollToCat(g.id)}
+                >
+                  <span className="sb-nav-glyph">{g.short}</span>
+                  <span className="sb-nav-name">{g.name}</span>
+                  <span className="sb-nav-count">{g.items.length}</span>
+                </button>
+              ))}
+            </div>
+          </aside>
+
+          <main className="sb-main" ref={scrollRef}>
+            {searchResults ? (
+              <div className="sb-section">
+                <div className="sb-section-head sticky">
+                  Результаты поиска · {searchResults.length}
+                </div>
+                {searchResults.length === 0 ? (
+                  <div className="sb-empty">
+                    <div className="sb-empty-glyph">🔎</div>
+                    <div>По запросу «{q}» ничего не найдено</div>
+                    <div className="sb-empty-hint">Попробуйте синоним или другой язык</div>
+                  </div>
+                ) : (
+                  <div className="sb-grid">
+                    {searchResults.map((i, idx) => (
+                      <button key={i.e + idx} className="sb-cell" onClick={() => onPick(i.e)} title={i.t}>
+                        <FluentIcon icon={i} size={30} />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              grouped.map(g => (
+                <div
+                  key={g.id}
+                  className="sb-section"
+                  ref={el => sectionRefs.current[g.id] = el}
+                >
+                  <div className="sb-section-head sticky">{g.name}</div>
+                  <div className="sb-grid">
+                    {g.items.map((i, idx) => (
+                      <button key={i.e + idx} className="sb-cell" onClick={() => onPick(i.e)} title={i.t}>
+                        <FluentIcon icon={i} size={30} />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))
+            )}
+          </main>
+        </div>
+
+        <div className="sb-foot">
+          <span className="sb-foot-hint">Fluent Emoji Flat · Microsoft · {window.ICONS.length} иконок</span>
+          <button className="sb-cancel" onClick={onClose}>Отмена</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+window.PickerSidebar = PickerSidebar;
+</script>
+<script type="text/babel" data-presets="react">
+
+
+
+const { useState } = React;
+
+// Seed data — system tags (non-deletable) match the screenshot.
+const SYSTEM_TAGS = [
+  { id: 't1', name: 'Не пересаживать', icon: '🔒', on: true,  custom: false },
+  { id: 't2', name: 'VIP гость',       icon: '💎', on: true,  custom: false },
+  { id: 't3', name: 'День Рождения',   icon: '🎈', on: true,  custom: false },
+  { id: 't4', name: 'Может опоздать',  icon: '🐢', on: true,  custom: false },
+  { id: 't5', name: 'Подарок',         icon: '🎁', on: false, custom: false },
+  { id: 't6', name: 'Свой алкоголь',   icon: '🍷', on: false, custom: false },
+  { id: 't7', name: 'Новый',           icon: '🆕', on: true,  custom: false },
+  { id: 't8', name: 'С диванами',      icon: '🛋️', on: false, custom: false },
+  { id: 't9', name: 'Не поздравлять',  icon: '🤫', on: true,  custom: false },
+  // One custom tag so trash/picker UI is visible by default:
+  { id: 't10', name: 'Годовщина',      icon: '💍', on: true,  custom: true },
+];
+
+const COMMENTS = [
+  { id: 'c1', text: 'Соня',   on: true },
+  { id: 'c2', text: 'Катя',   on: true },
+  { id: 'c3', text: 'ВЗ',     on: true },
+  { id: 'c4', text: 'То место', on: true },
+  { id: 'c5', text: 'Ресто',  on: true },
+];
+
+function Frame({ PickerComp }) {
+  return (
+    <div className="artboard-frame">
+      <TagsModal
+        pickerComponent={PickerComp}
+        initialTags={SYSTEM_TAGS.map(t => ({ ...t }))}
+        comments={COMMENTS.map(c => ({ ...c }))}
+      />
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <DesignCanvas>
+      <DCSection
+        id="variant-a"
+        title="Метки с пользовательскими иконками"
+        subtitle="Вариант A · Поповер в строке. Кликни по иконке «💍» у «Годовщина» или нажми «+ Добавить»."
+      >
+        <DCArtboard
+          id="v1-popover"
+          label="A · Поповер в строке"
+          width={820}
+          height={980}
+        >
+          <Frame PickerComp={PickerPopover} />
+        </DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+
+
+
+</script>
+</body>
+</html>
