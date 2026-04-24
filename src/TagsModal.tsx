@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, CirclePlus, Trash2, X } from 'lucide-react';
 import { TagIcon } from './FluentIcon';
 import { PickerPopover } from './PickerPopover';
 import type { Comment, Tag, TagsModalProps } from './types';
@@ -7,25 +7,11 @@ import type { Comment, Tag, TagsModalProps } from './types';
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
 function CloseIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-      <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-    </svg>
-  );
+  return <X size={22} strokeWidth={1.8} />;
 }
 
 function TrashIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M9 3h6M4 6h16M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14M10 11v6M14 11v6"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <Trash2 size={18} strokeWidth={1.6} />;
 }
 
 function HelpIcon() {
@@ -37,13 +23,8 @@ function HelpIcon() {
   );
 }
 
-function PlusCircle() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="11" fill="#2DB856" />
-      <path d="M12 7v10M7 12h10" stroke="white" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
+function PlusIcon() {
+  return <CirclePlus size={20} strokeWidth={1.8} className="rp-add-plus" />;
 }
 
 // ─── Primitives ───────────────────────────────────────────────────────────────
@@ -239,8 +220,8 @@ export function TagsModal({
               />
             ))}
             <button className="rp-add-btn" type="button" onClick={addTag}>
-              <PlusCircle />
-              <span>Создать метку</span>
+              <PlusIcon />
+              <span>Добавить метку</span>
             </button>
           </div>
         </div>
@@ -262,7 +243,7 @@ export function TagsModal({
               />
             ))}
             <button className="rp-add-btn" type="button" onClick={addComment}>
-              <PlusCircle />
+              <PlusIcon />
               <span>Добавить комментарий</span>
             </button>
           </div>

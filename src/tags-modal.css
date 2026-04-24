@@ -44,12 +44,15 @@ body {
 
 .rp-modal {
   position: relative;
-  width: 720px;
+  text-align: left;
+  color: #1b1b29;
+  font-size: 14px !important;
+  border-radius: 10px;
+  width: 650px;
   max-width: 100%;
   background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 24px 60px rgba(18, 22, 32, 0.2), 0 2px 6px rgba(18, 22, 32, 0.08);
-  padding: 28px 36px 36px;
+  box-shadow: 0 24px 60px #12162033, 0 2px 6px #12162014;
+  padding: 24px 50px 38px;
 }
 
 .rp-close {
@@ -69,12 +72,13 @@ body {
 .rp-close:hover { color: #6b6f78; background: #f2f3f6; }
 
 .rp-title {
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
   color: #2b2f38;
-  margin: 0 0 22px;
+  margin: 15px 0 15px;
+  font-size: 16px;
   text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  margin-bottom: 15px;
 }
 
 /* ============ Sections ============ */
@@ -84,16 +88,25 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 10px;
+  color: rgb(84, 84, 84);
+  margin: 13px 0px 4px;
+  font-weight: 600;
+  font-size: 16px;
+  position: relative;
 }
 .rp-section-head h3 {
   margin: 0;
   font-size: 18px;
+  color: rgb(84, 84, 84);
   font-weight: 600;
-  color: #2b2f38;
 }
 
-.rp-rows { display: flex; flex-direction: column; gap: 8px; }
+.rp-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+}
 
 /* ============ Row ============ */
 .rp-row {
@@ -126,12 +139,12 @@ body {
   align-items: stretch;
   gap: 0;
   padding: 0;
-  height: 44px;
-  border: 1.5px solid #e0e2e8;
-  border-radius: 10px;
+  border-radius: 5px;
   background: #fff;
-  transition: border-color 0.15s;
+  transition: border-color .15s;
   overflow: hidden;
+  height: 37px;
+  border: 1px solid rgb(204, 204, 204);
 }
 .rp-input:focus-within { border-color: var(--rp-pink); }
 .rp-input input {
@@ -140,10 +153,10 @@ body {
   border: 0;
   outline: 0;
   background: transparent;
-  font-size: 15px;
   font-family: inherit;
   color: var(--rp-text);
   padding: 0 14px;
+  font-size: 14px;
 }
 .rp-input.simple input { padding: 0 14px; }
 
@@ -159,8 +172,8 @@ body {
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 0 6px 0 10px;
+  gap: 4px;
+  padding: 0 4px 0 9px;
   height: 100%;
   width: auto;
   margin: 0;
@@ -204,35 +217,36 @@ body {
 /* Toggle switch */
 .rp-toggle {
   position: relative;
-  width: 44px;
-  height: 24px;
+  width: 29px;
+  height: 17px;
   border-radius: 999px;
   border: 0;
   background: #d3d6dc;
   cursor: pointer;
   transition: background 0.18s;
   padding: 0;
+  flex-shrink: 0;
 }
 .rp-toggle.on { background: var(--rp-pink); }
 .rp-toggle-thumb {
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 20px;
-  height: 20px;
+  width: 13px;
+  height: 13px;
   border-radius: 50%;
   background: #fff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   transition: transform 0.18s;
 }
-.rp-toggle.on .rp-toggle-thumb { transform: translateX(20px); }
+.rp-toggle.on .rp-toggle-thumb { transform: translateX(12px); }
 
 .rp-toggle-label {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  color: #6b6f78;
   min-width: 34px;
-  letter-spacing: 0.02em;
+  letter-spacing: .02em;
+  color: rgba(51, 51, 51, 0.65);
 }
 
 .rp-trash {
@@ -242,8 +256,10 @@ body {
   color: #b1b5be;
   padding: 4px;
   border-radius: 6px;
+  display: grid;
+  place-items: center;
 }
-.rp-trash:hover { color: var(--rp-red); background: #fdeef1; }
+.rp-trash:hover { color: #4b4f58; background: transparent; }
 .rp-trash-placeholder { display: block; width: 26px; }
 
 /* ============ "Create tag" ghost button ============ */
@@ -417,3 +433,8 @@ body {
   font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
 }
 .fi-svg { pointer-events: none; }
+/* Force 16px for icons inside tag rows (overrides inline size={24}); picker keeps 24 */
+.rp-input .fi-svg {
+  width: 16px !important;
+  height: 16px !important;
+}
