@@ -73,7 +73,7 @@ function TagRow({ tag, onToggle, onRename, onDelete, onIconClick, onCommit, isNe
   }, [isNew]);
 
   return (
-    <div className="rp-row">
+    <div className={`rp-row${tag.on ? '' : ' off'}`}>
       <DragHandle />
       <div className="rp-input">
         <button
@@ -122,7 +122,7 @@ interface CommentRowProps {
 
 function CommentRow({ item, onToggle, onRename, onDelete }: CommentRowProps) {
   return (
-    <div className="rp-row">
+    <div className={`rp-row${item.on ? '' : ' off'}`}>
       <DragHandle />
       <div className="rp-input simple">
         <input

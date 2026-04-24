@@ -115,7 +115,11 @@ body {
   align-items: center;
   gap: 12px;
   padding: 2px 0;
+  transition: opacity 0.15s;
 }
+.rp-row.off { opacity: 0.55; }
+.rp-row.off .rp-toggle,
+.rp-row.off .rp-trash { opacity: 1; } /* keep toggle + trash fully visible */
 
 /* Drag handle */
 .rp-drag {
@@ -157,6 +161,10 @@ body {
   color: var(--rp-text);
   padding: 0 14px;
   font-size: 14px;
+}
+.rp-input input::placeholder {
+  color: #c0c3c9;
+  opacity: 1;
 }
 .rp-input.simple input { padding: 0 14px; }
 
@@ -240,7 +248,7 @@ body {
   font-weight: 600;
   min-width: 34px;
   letter-spacing: .02em;
-  color: rgba(51, 51, 51, 0.65);
+  color: #33333378;
 }
 
 .rp-trash {
@@ -283,7 +291,7 @@ body {
   transition: border-bottom-style 0.15s, color 0.15s;
 }
 .rp-add-btn:hover { color: #8a1d3d; background: transparent; }
-.rp-add-btn:hover span { border-bottom-style: solid; }
+.rp-add-btn:hover span { border-bottom-color: transparent; }
 .rp-add-btn svg { flex-shrink: 0; }
 
 /* ============ Icon picker popover ============ */
@@ -406,7 +414,8 @@ body {
 .pop-grid {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  gap: 2px;
+  gap: 4px;
+  padding: 4px 0;
 }
 
 .pop-cell {
@@ -417,9 +426,10 @@ body {
   cursor: pointer;
   display: grid;
   place-items: center;
-  transition: background 0.1s, transform 0.1s;
+  padding: 4px;
+  transition: background 0.1s;
 }
-.pop-cell:hover { background: #DCDCDC; transform: scale(1.1); }
+.pop-cell:hover { background: #36383c0d; }
 
 .pop-empty {
   padding: 48px 24px;
