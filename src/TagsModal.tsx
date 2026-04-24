@@ -215,7 +215,6 @@ export function TagsModal({
 
   return (
     <div className="rp-modal-shell">
-      <div className="rp-modal-backdrop" aria-hidden />
       <div className="rp-modal" onClick={(e) => e.stopPropagation()}>
         <button className="rp-close" type="button" onClick={onClose} aria-label="Закрыть">
           <CloseIcon />

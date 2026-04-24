@@ -32,17 +32,6 @@ body {
   z-index: 10;
 }
 
-/* Light-blur backdrop sitting behind the modal */
-.rp-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(20, 22, 30, 0.18);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  z-index: 0;
-  pointer-events: none;
-}
-
 /* ============ Modal shell ============ */
 .rp-modal-shell {
   position: relative;
@@ -51,10 +40,6 @@ body {
   padding: 48px 16px 64px;
   display: flex;
   justify-content: center;
-}
-.rp-modal-shell .rp-modal {
-  position: relative;
-  z-index: 1;
 }
 
 .rp-modal {
@@ -138,75 +123,76 @@ body {
 .rp-input {
   position: relative;
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 0 14px 0 12px;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
   height: 44px;
   border: 1.5px solid #e0e2e8;
   border-radius: 10px;
   background: #fff;
   transition: border-color 0.15s;
+  overflow: hidden;
 }
 .rp-input:focus-within { border-color: var(--rp-pink); }
 .rp-input input {
   flex: 1;
+  min-width: 0;
   border: 0;
   outline: 0;
   background: transparent;
   font-size: 15px;
   font-family: inherit;
   color: var(--rp-text);
+  padding: 0 14px;
 }
-.rp-input.simple { padding-left: 14px; }
+.rp-input.simple input { padding: 0 14px; }
 
 .rp-icon-btn {
-  width: 26px;
-  height: 26px;
+  flex-shrink: 0;
   border: 0;
   background: transparent;
-  display: grid;
-  place-items: center;
-  cursor: default;
   padding: 0;
-  border-radius: 6px;
-  flex-shrink: 0;
+  cursor: default;
   position: relative;
 }
 .rp-icon-btn.editable {
   cursor: pointer;
-  width: auto;
-  height: 30px;
   display: inline-flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 6px;
-  padding: 0 8px 0 4px;
-  margin-left: -4px; /* offset the left pad so icon stays visually flush */
+  gap: 8px;
+  padding: 0 10px 0 12px;
+  height: 100%;
+  width: auto;
+  margin: 0;
+  border-radius: 0;
 }
 .rp-icon-btn.editable:hover { background: #DCDCDC; }
-.rp-icon-btn.empty {
-  border: 1.5px dashed #c7cbd2;
-  width: 26px;
-  height: 26px;
-  padding: 0;
-  margin-left: 0;
-  justify-content: center;
-  gap: 0;
+.rp-icon-btn.editable.empty {
+  padding: 0 10px 0 12px;
 }
+.rp-icon-btn.editable.empty .rp-icon-placeholder {
+  width: 24px;
+  height: 24px;
+  border: 1.5px dashed #c7cbd2;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  background: #fff;
+}
+
 .rp-icon-chevron {
   color: #9ba0aa;
   flex-shrink: 0;
 }
 .rp-icon-btn.editable:hover .rp-icon-chevron { color: #4b4f58; }
 
-/* vertical separator between icon button and name input */
+/* vertical separator — stretches full input height */
 .rp-icon-sep {
-  display: inline-block;
+  display: block;
   width: 1px;
-  height: 22px;
   background: #e0e2e8;
   flex-shrink: 0;
-  margin: 0 2px 0 -2px;
+  align-self: stretch;
 }
 
 .rp-icon-placeholder {
@@ -290,10 +276,12 @@ body {
   position: absolute;
   width: 360px;
   height: 440px;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
   border-radius: 12px;
   box-shadow: 0 16px 48px rgba(18, 22, 32, 0.28), 0 2px 6px rgba(0, 0, 0, 0.08);
-  border: 1px solid var(--rp-line);
+  border: 1px solid rgba(230, 231, 236, 0.8);
   z-index: 50;
   overflow: hidden;
   display: flex;
