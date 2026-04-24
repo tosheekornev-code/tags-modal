@@ -167,7 +167,9 @@ export function PickerPopover({ onPick, onClose, anchor }: PickerProps) {
             <div className="pop-grid">
               {searchResults.map((icon, idx) => (
                 <button
-                  key={`${icon.c}-${icon.s}-${idx}`}
+                  // Include q in key so each new search re-mounts the cell
+                  // and the browser resets :hover state on the new DOM node.
+                  key={`q=${q}|${icon.c}-${icon.s}-${idx}`}
                   type="button"
                   className="pop-cell"
                   onClick={() => onPick(`${icon.c}:${icon.s}`)}
