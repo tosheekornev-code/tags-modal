@@ -173,7 +173,7 @@ export function PickerPopover({ onPick, onClose, anchor }: PickerProps) {
                   onClick={() => onPick(`${icon.c}:${icon.s}`)}
                   title={icon.s}
                 >
-                  <FluentIcon icon={icon} size={24} />
+                  <FluentIcon icon={icon} size={20} />
                 </button>
               ))}
             </div>
@@ -195,7 +195,7 @@ export function PickerPopover({ onPick, onClose, anchor }: PickerProps) {
                     onClick={() => onPick(`${icon.c}:${icon.s}`)}
                     title={icon.s}
                   >
-                    <FluentIcon icon={icon} size={24} />
+                    <FluentIcon icon={icon} size={20} />
                   </button>
                 ))}
               </div>
