@@ -109,9 +109,7 @@ function TagRow({ tag, onToggle, onRename, onDelete, onIconClick, onCommit, isNe
           ) : (
             <span className="rp-icon-placeholder">?</span>
           )}
-          {tag.icon && (
-            <ChevronDown className="rp-icon-chevron" size={12} strokeWidth={2.25} aria-hidden />
-          )}
+          <ChevronDown className="rp-icon-chevron" size={12} strokeWidth={2.25} aria-hidden />
         </button>
         <span className="rp-icon-sep" aria-hidden />
         <input
