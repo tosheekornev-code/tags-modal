@@ -32,6 +32,17 @@ body {
   z-index: 10;
 }
 
+/* Light-blur backdrop sitting behind the modal */
+.rp-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 22, 30, 0.18);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 0;
+  pointer-events: none;
+}
+
 /* ============ Modal shell ============ */
 .rp-modal-shell {
   position: relative;
@@ -40,6 +51,10 @@ body {
   padding: 48px 16px 64px;
   display: flex;
   justify-content: center;
+}
+.rp-modal-shell .rp-modal {
+  position: relative;
+  z-index: 1;
 }
 
 .rp-modal {
@@ -159,24 +174,40 @@ body {
 }
 .rp-icon-btn.editable {
   cursor: pointer;
-  width: 36px;
+  width: auto;
+  height: 30px;
   display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 3px 0 1px;
+  justify-content: flex-start;
+  gap: 6px;
+  padding: 0 8px 0 4px;
+  margin-left: -4px; /* offset the left pad so icon stays visually flush */
 }
 .rp-icon-btn.editable:hover { background: #DCDCDC; }
 .rp-icon-btn.empty {
   border: 1.5px dashed #c7cbd2;
   width: 26px;
+  height: 26px;
   padding: 0;
+  margin-left: 0;
   justify-content: center;
+  gap: 0;
 }
 .rp-icon-chevron {
   color: #9ba0aa;
   flex-shrink: 0;
 }
 .rp-icon-btn.editable:hover .rp-icon-chevron { color: #4b4f58; }
+
+/* vertical separator between icon button and name input */
+.rp-icon-sep {
+  display: inline-block;
+  width: 1px;
+  height: 22px;
+  background: #e0e2e8;
+  flex-shrink: 0;
+  margin: 0 2px 0 -2px;
+}
 
 .rp-icon-placeholder {
   font-size: 13px;
@@ -358,17 +389,13 @@ body {
 .pop-section { padding-top: 2px; }
 
 .pop-section-head {
-  position: sticky;
-  top: 0;
   margin: 0;
   padding: 10px 4px 6px;
-  background: #fff;
   font-size: 11px;
   font-weight: 600;
   color: var(--rp-muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  z-index: 1;
 }
 
 .pop-grid {

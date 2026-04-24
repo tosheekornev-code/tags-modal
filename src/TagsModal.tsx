@@ -113,6 +113,7 @@ function TagRow({ tag, onToggle, onRename, onDelete, onIconClick, onCommit, isNe
             <ChevronDown className="rp-icon-chevron" size={12} strokeWidth={2.25} aria-hidden />
           )}
         </button>
+        <span className="rp-icon-sep" aria-hidden />
         <input
           ref={inputRef}
           value={tag.name}
@@ -214,6 +215,7 @@ export function TagsModal({
 
   return (
     <div className="rp-modal-shell">
+      <div className="rp-modal-backdrop" aria-hidden />
       <div className="rp-modal" onClick={(e) => e.stopPropagation()}>
         <button className="rp-close" type="button" onClick={onClose} aria-label="Закрыть">
           <CloseIcon />
