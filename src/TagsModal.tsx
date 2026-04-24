@@ -88,7 +88,7 @@ function TagRow({ tag, onToggle, onRename, onDelete, onIconClick, onCommit, isNe
           {tag.icon ? (
             <TagIcon reference={tag.icon} size={24} className="rp-emoji" />
           ) : (
-            <span className="rp-icon-placeholder">?</span>
+            <span className="rp-icon-placeholder" aria-hidden />
           )}
           <ChevronDown className="rp-icon-chevron" size={12} strokeWidth={2.25} aria-hidden />
         </button>
