@@ -262,29 +262,34 @@ body {
 .rp-trash:hover { color: #4b4f58; background: transparent; }
 .rp-trash-placeholder { display: block; width: 26px; }
 
-/* ============ "Create tag" ghost button ============ */
+/* ============ "Add tag/comment" link button ============ */
 .rp-add-btn {
-  margin-top: 6px;
+  margin-top: 0;
+  margin-left: 25px;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 14px;
-  height: 36px;
+  padding: 4px 0;
+  height: auto;
   background: transparent;
-  border: 1.5px dashed #c7cbd2;
-  border-radius: 10px;
-  color: #5c6070;
+  border: 0;
+  border-radius: 0;
+  color: #c02956;
   font: inherit;
   font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  transition: color 0.15s;
   align-self: flex-start;
 }
-.rp-add-btn:hover {
-  border-color: var(--rp-green);
-  color: var(--rp-green);
-  background: rgba(45, 184, 86, 0.06);
+.rp-add-btn span {
+  border-bottom: 1px dashed;
+  margin-bottom: 3px;
+  font-weight: 500;
+  transition: border-bottom-style 0.15s, color 0.15s;
 }
+.rp-add-btn:hover { color: #8a1d3d; background: transparent; }
+.rp-add-btn:hover span { border-bottom-style: solid; }
 .rp-add-btn svg { flex-shrink: 0; }
 
 /* ============ Icon picker popover ============ */
